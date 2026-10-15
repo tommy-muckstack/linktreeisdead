@@ -1,0 +1,4 @@
+import type { ShellCfg } from "@/components/AppShell";
+export const shellCfg: ShellCfg = { mode: "side", vars: { "--side-w": "240px", "--accent": "#1a1a1a", "--on-bg": "#efefe9", "--on-ink": "#1a1a1a", "--page": "#f3f3f1", "--top-bg": "#f3f3f1", "--top-bd": "#e1e1da", "--side-bd": "#e1e1da", "--r": "999px", "--top-h": "72px" } as Record<string, string>,
+  items: [{ label: "Links", href: "/app", icon: "link" }, { label: "Shop", href: "/app#shop", icon: "template" }, { label: "Audience", href: "/app#audience", icon: "users" }, { label: "Insights", href: "/app#insights", icon: "chart" }, { label: "Tools", href: "/app#tools", icon: "settings" }],
+  foot: [{ label: "Account", href: "/app#account", icon: "users" }], title: "Links", right: [{ label: "Share", href: "/app#share" }, { label: "Upgrade", href: "/app#upgrade", solid: true }] };
