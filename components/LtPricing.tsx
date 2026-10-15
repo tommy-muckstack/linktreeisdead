@@ -49,7 +49,7 @@ export function LtPricing() {
   return <div className="ltp">
     <section className="ltp-hero">
       <h1>Pick your plan. Make it yours.</h1><p className="ltp-sub">Simple pricing with powerful features, cancel anytime.</p>
-      <div className="ltp-plans">{plans.map(p => <article key={p.name} className={"ltp-plan" + (p.hot ? " is-hot" : "")}>
+      <div className="ltp-plans"><article className="ltp-plan ltp-plan--free"><header><h3>Free</h3></header><div className="ltp-plan__b"><div className="ltp-price"><b>$0</b><span>forever</span></div><p className="ltp-bill">Everything you need to start</p><Link className="ltp-pbtn" href="/login?mode=signup">Get started</Link><hr /><h5>Includes:</h5><ul><li><i><Check s={10} /></i>Unlimited basic links</li><li><i><Check s={10} /></i>Email and phone sign-ups</li></ul></div></article>{plans.map(p => <article key={p.name} className={"ltp-plan" + (p.hot ? " is-hot" : "")}>
         {p.hot && <span className="ltp-rec"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7L12 17.3 5.8 20.9l1.6-7L2 9.2l7.1-.6z" fill="currentColor" /></svg>Recommended</span>}
         <header><h3>{p.name}</h3></header>
         <div className="ltp-plan__b"><div className="ltp-price"><b>{p.price}</b><span>/mo</span></div><p className="ltp-bill">Billed annually, or {p.alt} monthly</p>
@@ -83,7 +83,7 @@ export function LtPricing() {
           <nav className="ltp-tabs"><div>{tabs.map((t, i) => <a key={t} href={`#ltp-g${i}`} className={tab === i ? "on" : ""} onClick={() => setTab(i)}>{t}</a>)}</div></nav>
           <div className="ltp-tbl__c">{groups.map(([g, rows], gi) => <div key={g} id={`ltp-g${gi}`} className="ltp-grp">{rows.map(([label, cells, desc]) => { const k = g + label; const o = !!open[k]; return <div key={k} className="ltp-row">
             <div className="ltp-row__l"><button type="button" aria-expanded={o} onClick={() => setOpen({ ...open, [k]: !o })}><span className="ch"><Chev open={o} /></span><span>{label}</span></button>{o && <p>{desc}</p>}</div>
-            {cells.map((c, ci) => <div key={ci} className={"ltp-row__c" + (ci === 2 ? " hot" : "")}>{c === 1 ? <Check /> : c === 0 ? <Cross /> : <small>{c}</small>}</div>)}</div>; })}</div>)}</div></div>
+            {cells.map((c, ci) => <div key={ci} data-plan={cols[ci].n} className={"ltp-row__c" + (ci === 2 ? " hot" : "") + (typeof c === "string" ? " t" : "")}>{c === 1 ? <Check /> : c === 0 ? <Cross /> : <small>{c}</small>}</div>)}</div>; })}</div>)}</div></div>
       </div></section>
 
     <section className="ltp-more"><h2>Everything you need,<br />and then some.</h2>
