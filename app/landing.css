@@ -124,3 +124,5 @@
 
 /* pricing page: hide home sections, keep header/footer */
 .lp.is-pr>*:not(.lp-hero):not(footer):not(.pb){display:none!important}.lp.is-pr .lp-hero>*:not(.lp-nav){display:none!important}.lp.is-pr .lp-hero{height:auto!important;min-height:0!important;background:#f3f3f1!important;overflow:visible}{display:none!important}
+/* mobile footer stacks link groups like linktr.ee at 390 */
+@media (max-width:760px){.lp-ft__cols{grid-template-columns:1fr!important}.lp-ft__cols>div{margin-bottom:28px}.lp-ft__cols h4{margin-bottom:14px}}
