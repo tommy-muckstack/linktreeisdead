@@ -121,3 +121,6 @@
   .lp-bento__l{grid-template-rows:290px 300px}.lp-b--navy{height:540px}.lp-quote{padding-top:110px;padding-bottom:140px}
   .lp-faq summary{height:96px}.lp-faq details{margin-bottom:16px}.lp-faq{padding-bottom:200px}.lp-ft{padding-top:120px}.lp-trust{padding-bottom:20px}
 }
+
+/* pricing page: hide home sections, keep header/footer */
+.lp.is-pr>*:not(.lp-hero):not(footer):not(.pb){display:none!important}.lp.is-pr .lp-hero>*:not(.lp-nav){display:none!important}.lp.is-pr .lp-hero{height:auto!important;min-height:0!important;background:#f3f3f1!important;overflow:visible}{display:none!important}

@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { PricingBody } from "@/components/PricingBody";
+import { pricingCfg } from "@/components/pricingCfg";
 import { ClaimBar } from "@/components/ClaimBar";
 import "@/app/landing.css";
 
@@ -10,8 +12,8 @@ const Phone = ({ bg, name, tint }: { bg: string; name: string; tint: string }) =
 const faq = ["Is Linktree the original link in bio tool?", "Can you get paid and sell things from a Linktree?", "Is Linktree safe to use on all of my social media profiles?", "What makes Linktree better than the other link in bio options?", "How can I drive more traffic to and through my Linktree?", "How many links should I have on my Linktree?", "Do I need a website to use Linktree?", "Where can I download the app?"];
 const cols: [string, string[]][] = [["Company", ["The Blog", "Engineering Blog", "Marketplace", "Tools", "What's New", "About", "Newsroom", "Careers", "Link in Bio", "Social Good", "Contact"]], ["Community", ["For Enterprise", "Creator Report", "Previous Report", "Charities", "Profile Directory", "Explore Templates"]], ["Support", ["Help Topics", "Getting Started", "Pro", "Features & How-Tos", "FAQs", "Report a Violation"]], ["Trust & Legal", ["Terms & Conditions", "Privacy Notice", "Cookie Notice", "Trust Center", "Cookies Preferences", "Transparency Report", "Law Enforcement Access Policy", "Human Rights"]]];
 
-export function Landing() {
-  return <div className="lp">
+export function Landing({ page }: { page?: "pricing" } = {}) {
+  return <div className={"lp" + (page === "pricing" ? " is-pr" : "")}>
     <div className="lp-promo"><span>Make your page the best it can be. <Link href="/login?mode=signup">Claim yours today.</Link></span><button aria-label="Dismiss">×</button></div>
     <header className="lp-hero">
       <nav className="lp-nav"><Link href="/" className="lp-logo">LinktreeIsDead<Star /></Link>
@@ -44,6 +46,7 @@ export function Landing() {
     <section className="lp-quote"><div className="lp-arch"><i /></div><blockquote>“A single link made it simple for me to share every part of what I make, in one inclusive place.”</blockquote><p>Riley L.,<br />Creator</p><div className="lp-arrows"><button aria-label="Previous">←</button><button aria-label="Next">→</button></div></section>
 
     <section className="lp-faq"><h2 className="lp-h2 lp-h2--pink">Questions? Answered</h2>{faq.map(q => <details key={q}><summary>{q}<svg width="12" height="8" viewBox="0 0 12 8" aria-hidden><path d="M1 1l5 5 5-5" fill="none" stroke="currentColor" strokeWidth="1.6" /></svg></summary><p>Yes. Open an issue or read the docs on GitHub for details.</p></details>)}</section>
+    {page === "pricing" && <PricingBody cfg={pricingCfg} />}
 
     <footer className="lp-ft"><div className="lp-ft__blob" /><div className="lp-ft__cta"><h2 className="lp-h2 lp-h2--pink">Jumpstart your corner of the internet today</h2><ClaimBar placeholder="linktr.ee/" cta="Claim your page" btn="lp-btn--lime" /></div>
       <div className="lp-ft__card"><div className="lp-ft__cols">{cols.map(([h, ls]) => <div key={h}><h4>{h}</h4>{ls.map(l => <Link key={l} href="/login">{l}</Link>)}</div>)}</div><div className="lp-ft__lang"><b>English</b><span>Português (Brasil)</span></div>
