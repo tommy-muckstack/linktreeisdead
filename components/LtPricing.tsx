@@ -16,14 +16,14 @@ const plans = [
   { name: "Premium", price: "$30", alt: "$35", cta: "Try free for 7 days", lead: "Everything in Pro, plus:", feats: ["Link rules and routing", "AI integrations", "All-time analytics", "Data export", "Social media scheduling", "Unlimited Instagram auto-replies"] },
 ];
 const quotes: [string, string][] = [
-  ["On Pro, my Linktree is beautiful. Aesthetically pleasing, easy-to-use and user-friendly.", "unbreakablevoices"],
-  ["Linktree Pro is an all-in-one place for marketing and advertising. It makes it easier to build your brand.", "varskidajahles"],
-  ["I use Linktree Pro as a control center, where any audience might find any project interesting. It's a concise delivery for content, with wide variety.", "woodyadams"],
-  ["Linktree Pro showcases seemingly endless opportunities to share to your audience in a fun way.", "kittykittyxbangbang"],
-  ["I'd recommend Linktree Pro's analytics. It's given me a significant boost to my site traffic.", "randiesel"],
+  ["My page looks great and my followers find everything in one tap. Simple to set up and easy to keep tidy.", "An early user"],
+  ["One place to point people to my music, my shop and my newsletter. It makes sharing a lot less fiddly.", "A community member"],
+  ["I use it as a control center for all my projects. A concise page, with a wide variety of links.", "An early user"],
+  ["Sharing a link to everything I make is quick, and the page loads fast on any phone.", "A community member"],
+  ["The click analytics show me which links people actually use, so I know what to promote.", "An early user"],
 ];
 const tiles: [string, string, string, string][] = [
-  ["/laclippers", "#fff", "#1e2330", "24px"], ["/selenagomez", "#c98b7e", "#fff", "24px 24px 24px 24px"], ["/funkynutmeg", "#0b0b24", "#9ec1ff", "999px"], ["/hbo", "#050505", "#fff", "24px"], ["/comedycentral", "#e8e0c2", "#1e2330", "24px"], ["/pharrell", "#2a2f6b", "#fff", "999px 999px 24px 24px"], ["/tonyhawk", "#d2e823", "#1e2330", "24px"],
+  ["/yourband", "#fff", "#1e2330", "24px"], ["/yourstudio", "#c98b7e", "#fff", "24px"], ["/yourpodcast", "#0b0b24", "#9ec1ff", "999px"], ["/yourshop", "#050505", "#fff", "24px"], ["/yournewsletter", "#e8e0c2", "#1e2330", "24px"], ["/yourartist", "#2a2f6b", "#fff", "999px 999px 24px 24px"], ["/yourcoach", "#d2e823", "#1e2330", "24px"],
 ];
 const earn: [string, string, string][] = [["Digital products", "Instant checkout, no extra tools", "Requires separate storefront"], ["Online courses", "Kajabi-powered, no extra account needed", "Monthly fees, complex setup"], ["Sponsored links", "Built-in traffic monetization", "No native monetization"], ["Affiliate commissions", "Industry-leading commissions", "Lower commission payouts"], ["Setup time", "Minutes", "Hours or days"]];
 const growth: [string, string, string][] = [["Stay consistent on social", "Schedule social posts to go live across platforms and never miss a posting day again.", "sched"], ["Grow your email list", "Collect emails on your Linktree so you can stay connected on and off social platforms.", "email"], ["Use insights to optimize", "Get deep insights into your audience and optimize your Linktree for more clicks and engagement.", "insights"]];
@@ -91,7 +91,7 @@ export function LtPricing() {
       <Link className="ltp-pinkbtn" href="/login?mode=signup">Join the Pros</Link></section>
 
     <section className="ltp-person"><div className="ltp-arch"><i className="blob" /><i className="head" /><i className="body" /></div>
-      <blockquote>“I’d recommend Linktree to other creators! It’s very powerful for getting more eyes on your content.”</blockquote><p>Catie T (Millennial Money Honey),<br />Designer, Art Director and Financial Independence Educator</p></section>
+      <blockquote>“I’d recommend this to other creators! It’s very powerful for getting more eyes on your content.”</blockquote><p>An early user,<br />Designer, Art Director and Financial Independence Educator (sample testimonial)</p></section>
 
     <section className="ltp-agency"><div><h2>Agency or<br />Enterprise</h2><p>Big teams, big goals. Connect with us and we’ll build a custom plan to get you there.</p><Link className="ltp-dark" href="/login">Get in touch</Link></div>
       <div className="ltp-agency__art"><div className="ph"><i /><b>Omar Neybiri</b><small>3D animator based in Brooklyn</small></div><div className="msg"><b>23</b><small>Messages received</small></div><div className="form"><b>Contact me</b><em>Name*</em><em>Email address*</em><em className="t">Message*</em><u>Send message</u></div></div></section>
