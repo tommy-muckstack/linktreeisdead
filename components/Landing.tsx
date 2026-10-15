@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { PricingBody } from "@/components/PricingBody";
-import { pricingCfg } from "@/components/pricingCfg";
+import { LtPricing } from "@/components/LtPricing";
 import { ClaimBar } from "@/components/ClaimBar";
 import "@/app/landing.css";
 
@@ -46,7 +45,7 @@ export function Landing({ page }: { page?: "pricing" } = {}) {
     <section className="lp-quote"><div className="lp-arch"><i /></div><blockquote>“A single link made it simple for me to share every part of what I make, in one inclusive place.”</blockquote><p>Riley L.,<br />Creator</p><div className="lp-arrows"><button aria-label="Previous">←</button><button aria-label="Next">→</button></div></section>
 
     <section className="lp-faq"><h2 className="lp-h2 lp-h2--pink">Questions? Answered</h2>{faq.map(([q, a]) => <details key={q}><summary>{q}<svg width="12" height="8" viewBox="0 0 12 8" aria-hidden><path d="M1 1l5 5 5-5" fill="none" stroke="currentColor" strokeWidth="1.6" /></svg></summary><p>{a}</p></details>)}</section>
-    {page === "pricing" && <PricingBody cfg={pricingCfg} />}
+    {page === "pricing" && <LtPricing />}
 
     <footer className="lp-ft"><div className="lp-ft__blob" /><div className="lp-ft__cta"><h2 className="lp-h2 lp-h2--pink">Jumpstart your corner of the internet today</h2><ClaimBar placeholder="linktr.ee/" cta="Claim your page" btn="lp-btn--lime" /></div>
       <div className="lp-ft__card"><div className="lp-ft__cols">{cols.map(([h, ls]) => <div key={h}><h4>{h}</h4>{ls.map(l => <Link key={l} href="/login">{l}</Link>)}</div>)}</div><div className="lp-ft__lang"><b>English</b><span>Português (Brasil)</span></div>
