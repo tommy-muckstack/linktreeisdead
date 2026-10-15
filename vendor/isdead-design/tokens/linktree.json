@@ -1,0 +1,85 @@
+{
+  "name": "linktree",
+  "source": "linktree.com homepage look (deep green #254F1A, lime #D2E823, lilac, rounded pill buttons, huge tight display type), original art, measured 2026-10-14",
+  "font": {
+    "sans": "Bricolage Grotesque",
+    "display": "Bricolage Grotesque",
+    "files": {
+      "Bricolage Grotesque": "linktree/BricolageGrotesque-Variable.woff2"
+    },
+    "mono": "ui-monospace, SFMono-Regular, Menlo, monospace",
+    "note": "Linktree's brand sans is proprietary and not shipped. Bricolage Grotesque (OFL) is our lookalike: tight, heavy, slightly quirky display grotesque."
+  },
+  "color": {
+    "bg": "#FFFFFF",
+    "surface": "#FFFFFF",
+    "surfaceAlt": "#F3F3F1",
+    "text": "#0B0F0A",
+    "textMuted": "#4A5247",
+    "textSubtle": "#8A9186",
+    "border": "#DADDD6",
+    "borderStrong": "#0B0F0A",
+    "danger": "#C62828",
+    "success": "#1B7F4B",
+    "warning": "#B7791F",
+    "onPrimary": "#FFFFFF",
+    "onAccent": "#254F1A",
+    "primary": "#254F1A",
+    "primaryHover": "#1B3C13",
+    "accent": "#D2E823",
+    "accentHover": "#BFD41A",
+    "accentSoft": "#F1F8B8",
+    "focus": "#254F1A",
+    "heroFrom": "#F1F8B8",
+    "heroMid": "#F4E3F4",
+    "heroTo": "#E9C0E9"
+  },
+  "radius": {
+    "xs": "6px",
+    "sm": "10px",
+    "md": "16px",
+    "lg": "24px",
+    "xl": "32px",
+    "pill": "9999px"
+  },
+  "space": {
+    "1": "4px",
+    "2": "8px",
+    "3": "12px",
+    "4": "16px",
+    "5": "20px",
+    "6": "24px",
+    "8": "32px",
+    "10": "40px",
+    "12": "48px",
+    "16": "64px"
+  },
+  "shadow": {
+    "sm": "0 1px 2px rgba(11,15,10,.08)",
+    "md": "0 4px 16px rgba(11,15,10,.10)",
+    "lg": "0 16px 48px rgba(11,15,10,.16)"
+  },
+  "type": {
+    "xs": "12px",
+    "sm": "14px",
+    "md": "16px",
+    "lg": "18px",
+    "xl": "24px",
+    "2xl": "32px",
+    "3xl": "44px",
+    "4xl": "60px",
+    "weightBody": 400,
+    "weightStrong": 600,
+    "weightHeading": 700,
+    "tracking": "-0.03em",
+    "lineHeight": 1.5
+  },
+  "control": {
+    "height": "48px",
+    "heightSm": "36px",
+    "borderWidth": "1px",
+    "buttonRadius": "9999px",
+    "inputRadius": "12px",
+    "cardRadius": "24px"
+  }
+}

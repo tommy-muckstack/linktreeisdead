@@ -1,0 +1,35 @@
+import type { Site } from "@/lib/site-types";
+const GH = "https://github.com/tommy-muckstack/linktreeisdead";
+export const site: Site = {
+  slug: "linktreeisdead", name: "LinktreeIsDead", replaces: "Linktree", theme: "linktree",
+  glyph: "M12 4 V20 M12 9 L7 14 M12 9 L17 14 M12 14 L9 17 M12 14 L15 17",
+  nav: [{ label: "Products", id: "product" }, { label: "Templates", id: "themes" }, { label: "Learn", id: "resources" }, { label: "Pricing", id: "pricing" }],
+  cta: "Get started for free",
+  hero: { variant: "split", phone: true, eyebrow: "Free · Open source · No branding fees", title: ["Everything you are.", "In one simple link."], subtitle: "Put every link, project and way to reach you on one page you can share anywhere. Pick a theme, add your links, and watch the clicks come in. All of it is free, and nothing is locked.",
+    primary: { label: "Claim your page", href: "/login" }, secondary: { label: "See pricing", href: "/#pricing" }, shot: "phone.png", shotAlt: "A themed link-in-bio page on a phone with a profile photo, a short bio and five link buttons",
+    claim: { prefix: "yourappisdead.com/linktreeisdead/u/", placeholder: "yourname", cta: "Claim your page" } },
+  audience: "Made for creators, musicians, small shops, newsletters, podcasters, coaches and anyone with more than one place to send people",
+  stepsTitle: "Go from empty to shared in four steps",
+  steps: [{ t: "Claim your handle", d: "Pick a short name. Your page lives at one clean link you can put in any bio." }, { t: "Add your links", d: "Paste a URL, give it a title, and drag it into place. Headers split your page into sections." }, { t: "Choose a theme", d: "Eight themes, three button styles and three shapes, with a live preview as you tweak." }, { t: "Share and learn", d: "See page views, clicks and which links work best, from the first visit." }],
+  rows: [
+    { id: "product", k: "Links", h: "A page you can build in a minute", p: "Add links and headers, hide the ones you don't need this week, and reorder with a drag or the arrow buttons. Everything saves as you type.", img: "editor.png", alt: "The links editor next to a live phone preview", cta: "Start building" },
+    { id: "themes", k: "Themes", h: "Make it look like you", p: "Eight themes from loud gradients to plain paper. Switch between fill, outline and soft buttons, and between pill, rounded and square shapes.", img: "themes.png", alt: "The appearance tab showing eight theme swatches and button options", cta: "Pick a theme" },
+    { id: "analytics", k: "Analytics", h: "Know what people actually click", p: "Page views, link clicks and click-through rate for the last 14 days, plus a ranked list of your top links. No tracking scripts on your visitors.", img: "analytics.png", alt: "The analytics tab with totals, a 14-day bar chart and top links", cta: "See the analytics" },
+    { id: "share", k: "Your page", h: "Fast, simple and yours", p: "Your public page is a single lightweight page with no sign-up wall for your visitors. Share the link anywhere.", img: "public.png", alt: "A public link page in the Midnight theme", cta: "Make yours" },
+  ],
+  statsTitle: "Real numbers, no fine print",
+  stats: [{ b: "$0", s: "per month, forever" }, { b: "8 themes", s: "plus button styles and shapes" }, { b: "50 links", s: "per page, with headers" }, { b: "Apache-2.0", s: "fork it, change it, ship it" }],
+  integrations: { title: "Works with every link you already have", text: "Websites, newsletters, shops, playlists, booking pages and email. If it has a URL, it fits on your page." },
+  pricing: { title: "What you'd pay for a page of links", vendor: "Linktree", asOf: "October 2026", plans: [{ name: "Starter", perSeatMonth: 5, flat: true, note: "billed yearly, per page" }, { name: "Pro", perSeatMonth: 15, flat: true, note: "billed yearly, per page" }, { name: "Premium", perSeatMonth: 35, flat: true, note: "billed yearly, per page" }], seats: 1,
+    footnote: "Linktree also has a free plan with limits on themes and analytics. Our version has no email collection, scheduling or social-feed embeds yet, so compare features, not just price.", featuresTitle: "Every feature, no plan gates",
+    features: [{ name: "Unlimited links and headers", plan: "Free / Starter" }, { name: "Themes and button styles", plan: "Free / Starter" }, { name: "Link click analytics", plan: "Pro" }, { name: "Page view analytics", plan: "Pro" }, { name: "Hide and show links", plan: "Free" }, { name: "Remove the brand footer", plan: "Pro", }] },
+  finalCta: { title: "One link. Zero subscription.", sub: "Claim your handle and your page is live in about a minute." },
+  footer: [
+    { title: "Product", links: [{ label: "Links", href: "/#product" }, { label: "Themes", href: "/#themes" }, { label: "Analytics", href: "/#analytics" }, { label: "Pricing", href: "/#pricing" }] },
+    { title: "Get started", links: [{ label: "Log in", href: "/login" }, { label: "Try the demo account", href: "/login" }, { label: "See the demo page", href: "/u/demo" }] },
+    { title: "Open source", links: [{ label: "GitHub", href: GH }, { label: "Apache-2.0 license", href: GH + "/blob/main/LICENSE" }] },
+    { title: "More IsDead apps", links: [{ label: "CalendlyIsDead", href: "/calendlyisdead" }, { label: "TrelloIsDead", href: "/trelloisdead" }, { label: "BitlyIsDead", href: "/bitlyisdead" }, { label: "WeTransferIsDead", href: "/wetransferisdead" }, { label: "LoomIsDead", href: "/loomisdead" }] },
+  ],
+  trademark: "LinktreeIsDead is an independent open-source project. It is not affiliated with, endorsed by or sponsored by Linktree Pty Ltd. Linktree is a trademark of its owner.",
+  repo: GH,
+};
