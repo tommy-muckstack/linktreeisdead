@@ -9,7 +9,7 @@
 .lp-promo button{position:absolute;right:8px;top:8px;width:48px;height:48px;background:transparent;border:0;color:#fff;font-size:24px;cursor:pointer}
 .lp-hero{height:911px;background:var(--lime);position:relative;overflow:hidden;color:var(--green)}
 .lp-nav{position:absolute;left:72px;right:72px;top:48px;height:88px;border-radius:9999px;background:#fff;display:flex;align-items:center;padding:0 24px 0 44px;color:var(--ink)}
-.lp-logo{font-weight:800;font-size:21px;letter-spacing:-.02em;display:flex;align-items:center;gap:2px}
+.lp-logo{font-weight:800;font-size:21px;letter-spacing:-.02em;display:flex;align-items:center;gap:8px}
 .lp-links{display:flex;margin-left:91px;gap:0}.lp-links>*{height:48px;display:inline-flex;align-items:center;padding:0 16px;border:0;background:#fff;font:inherit;font-stretch:100%;font-size:16px;color:var(--ink);border-radius:16px;cursor:pointer}
 .lp-navcta{margin-left:auto;display:flex;gap:8px}.lp-login{height:62px;padding:0 32px;display:inline-flex;align-items:center;background:var(--marble);border-radius:16px;font-weight:500;font-size:16px;font-stretch:100%}.lp-signup{height:62px;padding:0 32px;display:inline-flex;align-items:center;background:var(--ink);color:#fff;border-radius:9999px;font-size:16px;font-stretch:100%}
 .lp-hero__body{position:absolute;inset:0;top:0}
