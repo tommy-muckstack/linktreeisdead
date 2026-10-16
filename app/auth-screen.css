@@ -28,3 +28,7 @@
 .lg-right{position:relative;overflow:hidden;background:#2459c9}.lg-right.su{background:#d4a22f}
 .lg-svg{position:absolute;inset:0;width:100%;height:100%;display:block;font-family:"IsDead Archivo",system-ui,sans-serif;font-stretch:100%}
 @media (max-width:860px){.lg{grid-template-columns:1fr}.lg-right{display:none}.lg-form{width:100%;max-width:480px}.lg-left{padding:0 20px}}
+.lg-cta{display:inline-flex;align-items:center;justify-content:center;gap:10px}.lg-cta.busy{background:#d2e823;color:#1e2330;opacity:1;cursor:progress}
+.lg-spin{width:18px;height:18px;border-radius:50%;border:2.5px solid currentColor;border-right-color:transparent;animation:lg-spin .7s linear infinite}
+@keyframes lg-spin{to{transform:rotate(360deg)}}
+.lg-legal a{color:#6c10e8}

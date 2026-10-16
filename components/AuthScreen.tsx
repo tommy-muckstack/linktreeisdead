@@ -44,11 +44,11 @@ function ArtSignup() {
     <path d="M360 120 q70 30 100 70 q10 100 -40 160 q-50 -30 -60 -110z" fill="url(#vz)" opacity=".92" />
     <g transform={rot(5, 256, 300)}><rect x="148" y="68" width="215" height="462" rx="20" fill="#86593b" transform="translate(0,0)" />
       <circle cx="258" cy="143" r="33" fill="#e8a768" /><path d="M230 145 q4 -42 30 -40 q26 0 28 40 q-10 -22 -28 -22 q-20 0 -30 22z" fill="#2a1a14" /><ellipse cx="258" cy="150" rx="15" ry="19" fill="#8a5233" />
-      <text x="258" y="200" textAnchor="middle" fontSize="13" fontWeight="700" fill="#fff" fontFamily="inherit">Nikole Brake</text><text x="258" y="217" textAnchor="middle" fontSize="10.5" fill="#f4e6d8" fontFamily="inherit">Founder of Shape Shifters</text>
+      <text x="258" y="200" textAnchor="middle" fontSize="13" fontWeight="700" fill="#fff" fontFamily="inherit">@shape.studio</text><text x="258" y="217" textAnchor="middle" fontSize="10.5" fill="#f4e6d8" fontFamily="inherit">Sample page: a movement studio</text>
       {[["Slow flow", 245], ["Online courses", 290], ["Wellness retreats", 330]].map(([t, y]) => <g key={t as string}><rect x="158" y={y as number} width="195" height="40" rx="17" fill="#c7ac98" /><text x="238" y={(y as number) + 25} textAnchor="middle" fontSize="12.5" fontWeight="600" fill="#3a2a22" fontFamily="inherit">{t}</text><path d={`M326 ${(y as number) + 17} l5 5 5 -5`} stroke="#3a2a22" strokeWidth="2" fill="none" /></g>)}</g>
     <g transform="translate(-512 0)">
     <g transform={rot(-5, 640, 205)}><rect x="556" y="118" width="166" height="177" rx="20" fill="#c71ed9" /><circle cx="595" cy="156" r="25" fill="#e8a768" /><path d="M572 158 q6 -34 24 -30 q20 0 24 30 q-10 -18 -24 -18 q-14 0 -24 18z" fill="#2a1a14" /><rect x="627" y="148" width="46" height="9" rx="4.5" fill="#f3a0ff" /><rect x="627" y="164" width="34" height="9" rx="4.5" fill="#f3a0ff" /><circle cx="697" cy="153" r="12" fill="#fff" /><circle cx="697" cy="153" r="5" fill="none" stroke="#c71ed9" strokeWidth="2" /></g>
-    <g transform={rot(-6, 605, 218)}><rect x="537" y="192" width="138" height="52" rx="26" fill="#fff" /><g stroke="#222" strokeWidth="2.6" strokeLinecap="round"><path d="M561 210 v14 M554 213 l14 8 M568 213 l-14 8" /></g><text x="576" y="223" fontSize="14" fontWeight="600" fill="#222" fontFamily="inherit">/shapeshft3rs</text></g>
+    <g transform={rot(-6, 605, 218)}><rect x="537" y="192" width="138" height="52" rx="26" fill="#fff" /><g stroke="#222" strokeWidth="2.6" strokeLinecap="round"><path d="M557 217 h8 M555 212 h-2 a5 5 0 0 0 0 10 h2 M567 212 h2 a5 5 0 0 1 0 10 h-2" fill="none" /></g><text x="576" y="223" fontSize="14" fontWeight="600" fill="#222" fontFamily="inherit">/shape.studio</text></g>
     {[[601, 409], [654, 414], [708, 418]].map(([x, y], i) => <g key={x}><circle cx={x} cy={y} r="24" fill="#1f2230" />{i === 0 && <path d={`M${x - 9} ${y + 4} q9 5 17 -2 q6 -6 6 -12 q-4 3 -6 3 q-7 -8 -14 0 q-1 3 1 5 q-8 0 -13 -6 q-2 10 5 15z`} fill="#fff" />}{i === 1 && <><rect x={x - 11} y={y - 8} width="22" height="16" rx="5" fill="#fff" /><path d={`M${x - 3} ${y - 4} l7 4 -7 4z`} fill="#1f2230" /></>}{i === 2 && <path d={`M${x + 1} ${y - 11} v16 a5 5 0 1 1 -5 -5 M${x + 1} ${y - 11} q1 6 7 6`} stroke="#fff" strokeWidth="3" fill="none" />}</g>)}
     <g transform={rot(5, 870, 490)}><rect x="774" y="386" width="190" height="204" rx="20" fill="#f1b17a" /><path d="M800 480 q30 -90 100 -100 q40 -8 62 20 l0 190 l-168 0 q-4 -50 6 -110z" fill="#2a1a14" opacity=".9" /><path d="M830 420 q40 -40 100 -20 q8 50 -20 90 q-40 30 -80 -70z" fill="#d78a5a" /><circle cx="807" cy="543" r="22" fill="#fff" /><path d="M800 532 l18 11 -18 11z" fill="#222" /></g>
     </g>
@@ -63,22 +63,21 @@ export function AuthScreen({ config, demo, to, signup = false }: { config: Fireb
     <section className="lg-left">
       <Wordmark />
       <form className="lg-form" onSubmit={a.submit(true)}>
-        <h1>{reset ? "Reset password" : su ? "Join Linktree" : "Welcome back"}</h1>
-        <p className="lg-sub">{reset ? "We’ll email you a reset link." : su ? "Sign up for free!" : "Log in to your Linktree"}</p>
+        <h1>{reset ? "Reset password" : su ? "Join LinktreeIsDead" : "Welcome back"}</h1>
+        <p className="lg-sub">{reset ? "We’ll email you a reset link." : su ? "Sign up for free!" : "Log in to your LinktreeIsDead"}</p>
         {su ? <input className="lg-in lg-in--plain" type="email" placeholder="Email" aria-label="Email" value={a.email} onChange={e => a.setEmail(e.target.value)} required />
-          : <label className={`lg-fl${focus || a.email ? " on" : ""}`}><span>{reset ? "Email" : "Email or username"}</span><input className="lg-in" type={reset ? "email" : "text"} value={a.email} onFocus={() => setFocus(true)} onBlur={() => setFocus(false)} onChange={e => a.setEmail(e.target.value)} required autoComplete="username" /></label>}
+          : <label className={`lg-fl${focus || a.email ? " on" : ""}`}><span>Email</span><input className="lg-in" type="email" value={a.email} onFocus={() => setFocus(true)} onBlur={() => setFocus(false)} onChange={e => a.setEmail(e.target.value)} required autoComplete="email" /></label>}
         {a.step === 2 && !reset && <label className="lg-fl on"><span>Password</span><input className="lg-in" type="password" required minLength={6} autoFocus value={a.password} onChange={e => a.setPassword(e.target.value)} autoComplete={su ? "new-password" : "current-password"} /></label>}
-        <button className={`lg-cta${ready ? " ready" : ""}`} disabled={a.busy}>{reset ? "Send reset link" : a.step === 2 ? (su ? "Create account" : "Log in") : "Continue"}</button>
-        {su && a.step === 1 && <p className="lg-legal">By clicking <b>Continue</b>, you agree to Linktree’s <a href="#" onClick={a.off}>privacy notice</a>, <a href="#" onClick={a.off}>T&amp;Cs</a> and to receive offers, news and updates.</p>}
+        <button className={`lg-cta${ready ? " ready" : ""}${a.busy ? " busy" : ""}`} disabled={a.busy} aria-busy={a.busy}>{a.busy && <span className="lg-spin" aria-hidden />}{a.busy ? (reset ? "Sending…" : su ? "Creating account…" : "Logging in…") : reset ? "Send reset link" : a.step === 2 ? (su ? "Create account" : "Log in") : "Continue"}</button>
+        {su && a.step === 1 && <p className="lg-legal">By clicking <b>Continue</b>, you agree to the LinktreeIsDead <Link href="/privacy">privacy notice</Link> and <Link href="/terms">T&amp;Cs</Link>. We never send marketing emails.</p>}
         {!reset && <><div className="lg-or">OR</div>
           <button type="button" className="lg-prov" onClick={a.google} disabled={a.busy}>{GG}<span>Continue with Google</span></button></>}
         {a.err && <p role="alert" className="lg-err">{a.err}</p>}{a.note && <p role="status" className="lg-ok">{a.note}</p>}
-        {!su && !reset && <p className="lg-links"><a href="#" onClick={a.go("reset")}>Forgot password?</a> • <a href="#" onClick={a.off}>Forgot username?</a></p>}
+        {!su && !reset && <p className="lg-links"><a href="#" onClick={a.go("reset")}>Forgot password?</a></p>}
         <p className={`lg-switch${su ? " su" : ""}`}>{reset ? <a href="#" onClick={a.go("signin")}>Back to log in</a> : su ? <>Already have an account? <a href="#" onClick={a.go("signin")}>Log in</a></> : <>Don’t have an account? <a href="#" onClick={a.go("signup")}>Sign up</a></>}</p>
         {a.demo && <button type="button" className="lg-demo" onClick={a.useDemo}>Use the demo account</button>}
       </form>
       {!a.configured && <p className="lg-cfg" role="status">Sign-in isn’t configured on this deployment yet.</p>}
-      <span className="lg-cookie">Cookie preferences</span>
     </section>
     <aside className={`lg-right${su ? " su" : ""}`}>{su ? <ArtSignup /> : <ArtLogin />}</aside>
   </main>;
