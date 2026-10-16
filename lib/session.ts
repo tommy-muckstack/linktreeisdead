@@ -1,5 +1,5 @@
 // Who is signed in: the shared IsDead Firebase session cookie, or (demo mode) the single signed demo cookie.
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { SESSION_COOKIE, DEMO_COOKIE, GUEST_COOKIE, verifySessionCookie, verifyDemo, verifyGuest, guestEnabled, firebaseConfigured, signDemo } from "@/lib/isdead-auth/server";
 export { firebaseConfigured, signDemo, guestEnabled };
 /** `guest`: no account yet; data is keyed by the guest id and adopted by the account on sign-in. Gate email features on `!guest`. */
@@ -16,3 +16,6 @@ export async function currentUser(): Promise<SessionUser | null> {
 }
 /** Where to send someone with no session: straight into the app as a guest (or to login when guests are off). */
 export const entryRedirect = (next = "/app") => guestEnabled() ? `/api/session/guest?next=${encodeURIComponent(next)}` : `/login?callbackUrl=${encodeURIComponent(next)}`;
+
+/** The /app/... path this request asked for (set by middleware.ts), so a first-time guest lands where they meant to go. */
+export async function requestedAppPath(fallback = "/app"): Promise<string> { const v = (await headers()).get("x-isdead-next") ?? ""; return /^\/app(\/[\w\-./]*)?(\?[\w\-.=&%+~:,]*)?$/.test(v) ? v : fallback; }
