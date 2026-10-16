@@ -1,11 +1,11 @@
 import Link from "next/link";
+import { Mark } from "@/components/Mark";
 import { LtPricing } from "@/components/LtPricing";
 import { ClaimBar } from "@/components/ClaimBar";
 import "@/app/landing.css";
 
 // Structure mirrors linktr.ee's homepage: promo bar, floating pill nav, full-bleed colour sections, FAQ, purple footer.
 // All art is original CSS/SVG; no brand assets are copied.
-const Star = () => <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden><path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" /></svg>;
 const Cta = ({ cls = "", children }: { cls?: string; children: React.ReactNode }) => <Link className={"lp-btn " + cls} href="/login?mode=signup">{children}</Link>;
 const Phone = ({ bg, name, tint }: { bg: string; name: string; tint: string }) => <div className="lp-phone" style={{ background: bg }}><b style={{ color: tint }}>{name}</b><i /><i /><i /><span style={{ background: tint }} /></div>;
 const faq: [string, string][] = [["Is Linktree the original link in bio tool?", "Link-in-bio pages have been around for years. This project is a free, open-source take on the idea, and its code is on GitHub."], ["Can you get paid and sell things from a Linktree?", "Not yet. There are no payments or shop features, but you can link out to any store, tip jar or booking page you already use."], ["Is Linktree safe to use on all of my social media profiles?", "Your page is a normal web link, so you can paste it into any bio. It has no sign-up wall and no tracking scripts for your visitors."], ["What makes Linktree better than the other link in bio options?", "It is free, open source and has no locked features. It does less than the original, so it suits you best if you want a simple page with themes and click analytics."], ["How can I drive more traffic to and through my Linktree?", "Put your page link in every bio, keep your best links at the top, and check the Analytics tab to see which links people actually click."], ["How many links should I have on my Linktree?", "There is no limit in the app. A short list of five to eight links tends to be easiest for visitors to scan."], ["Do I need a website to use Linktree?", "No. Your page lives at its own link, so you don't need a website of your own."], ["Where can I download the app?", "There is no mobile app. The site works in any mobile browser, and you can add it to your home screen."]];
@@ -15,7 +15,7 @@ export function Landing({ page }: { page?: "pricing" } = {}) {
   return <div className={"lp" + (page === "pricing" ? " is-pr" : "")}>
     <div className="lp-promo"><span>Make your page the best it can be. <Link href="/login?mode=signup">Claim yours today.</Link></span><button aria-label="Dismiss">×</button></div>
     <header className="lp-hero">
-      <nav className="lp-nav"><Link href="/" className="lp-logo">LinktreeIsDead<Star /></Link>
+      <nav className="lp-nav"><Link href="/" className="lp-logo"><Mark size={30} />LinktreeIsDead</Link>
         <div className="lp-links"><button>Solutions</button><button>Features</button><button>Integrations</button><button>Resources</button><Link href="/pricing">Pricing</Link></div>
         <div className="lp-navcta"><Link className="lp-login" href="/login">Log in</Link><Link className="lp-signup" href="/login?mode=signup">Sign up free</Link></div></nav>
       <div className="lp-hero__body">
