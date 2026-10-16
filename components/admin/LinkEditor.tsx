@@ -6,7 +6,7 @@ import { BP } from "@/lib/basepath";
 import { ANIMS, COLLECTION_LAYOUTS, LIMITS, SOCIAL_IDS, SOCIAL_NAMES, isComplete, normalizeUrl, type Block, type Anim } from "@/lib/model";
 import { toEmbed } from "@/lib/embeds";
 import { I, SocialIcon } from "@/components/icons";
-import { useAdmin, readImage } from "@/components/admin/AdminProvider";
+import { useAdmin, uploadImage } from "@/components/admin/AdminProvider";
 import { Btn, Choice, Field, IconBtn, Menu, Modal, PanelHead, Row, Switch, plural, Empty } from "@/components/admin/ui";
 import { TYPE_META } from "@/components/admin/catalog";
 import { blockIcon } from "@/components/admin/ContentPanel";
@@ -50,7 +50,7 @@ function Details({ l, set, setData }: { l: Block; set: (p: Partial<Block>) => vo
   const { page, toast, setBlock } = useAdmin(); const d = l.data as Record<string, any>;
   const [iconPick, setIconPick] = useState(false);
   const title = <Field label="Title" value={l.title} max={LIMITS.linkTitle} onChange={v => set({ title: v })} />;
-  const upThumb = async (f?: File) => { if (!f) return; try { set({ thumb: await readImage(f, 320, { square: l.layout !== "featured", quality: 0.8 }) }); } catch (e) { toast((e as Error).message); } };
+  const upThumb = async (f?: File) => { if (!f) return; try { set({ thumb: await uploadImage(f, l.layout === "featured" ? 1400 : 600, { square: l.layout !== "featured" }) }); } catch (e) { toast((e as Error).message); } };
   switch (l.type) {
     case "header": return <Field label="Header text" value={l.title} max={80} onChange={v => set({ title: v })} autoFocus />;
     case "text": return <><Field label="Text" value={String(d.body ?? "")} max={LIMITS.text} multiline onChange={v => setData({ body: v })} autoFocus /><Row label="Alignment"><Choice label="Alignment" options={["left", "center"] as const} value={(d.align as "left" | "center") ?? "center"} onChange={v => setData({ align: v })} render={v => v === "left" ? "Left" : "Center"} /></Row></>;
@@ -76,7 +76,7 @@ function Details({ l, set, setData }: { l: Block; set: (p: Partial<Block>) => vo
       return <>{title}<h3 className="ad-sec">Layout</h3><Choice label="Collection layout" options={COLLECTION_LAYOUTS} value={(d.layout as "stack") ?? "stack"} onChange={v => setData({ layout: v })} cols={3} render={v => <><I n={v === "stack" ? "buttons" : v === "grid" ? "grid" : "hmore"} s={22} />{v[0]!.toUpperCase() + v.slice(1)}</>} />
         <h3 className="ad-sec">In this collection</h3>{kids.length ? <div className="ad-list2">{kids.map(k => <div key={k.id} className="ad-card"><span className="ad-card__ic">{blockIcon(k)}</span><span className="ad-card__m"><span className="ad-card__t">{k.title || TYPE_META[k.type].label}</span></span><Btn small kind="secondary" onClick={() => setBlock(k.id, { parent: "" })}>Remove</Btn></div>)}</div> : <p className="ad-muted">Drag links onto this collection in Content, or use a link's ⋮ menu → Move into collection.</p>}</>; }
     case "gallery": { const imgs = (d.images as { src: string; alt: string; url: string }[]) ?? [];
-      const add = async (files: FileList | null) => { if (!files) return; const out = [...imgs]; for (const f of [...files].slice(0, LIMITS.gallery - imgs.length)) { try { out.push({ src: await readImage(f, 900, { quality: 0.78 }), alt: "", url: "" }); } catch (e) { toast((e as Error).message); } } setData({ images: out }); };
+      const add = async (files: FileList | null) => { if (!files) return; const out = [...imgs]; for (const f of [...files].slice(0, LIMITS.gallery - imgs.length)) { try { out.push({ src: await uploadImage(f, 1600), alt: "", url: "" }); } catch (e) { toast((e as Error).message); } } setData({ images: out }); };
       return <>{title}<Row label="Style"><Choice label="Gallery style" options={["carousel", "grid"] as const} value={(d.style as "carousel") ?? "carousel"} onChange={v => setData({ style: v })} render={v => v === "carousel" ? "Carousel" : "Grid"} /></Row>
         <div className="ad-list2">{imgs.map((im, i) => <div key={i} className="ad-card"><span className="ad-upload" style={{ width: 56, height: 56 }}><img src={im.src} alt="" /></span><div style={{ flex: 1, display: "grid", gap: 6 }}><input className="ad-input" placeholder="Description (alt text)" value={im.alt} onChange={e => setData({ images: imgs.map((x, j) => j === i ? { ...x, alt: e.target.value } : x) })} /><input className="ad-input" placeholder="Link (optional)" value={im.url} onChange={e => setData({ images: imgs.map((x, j) => j === i ? { ...x, url: e.target.value } : x) })} /></div><IconBtn n="trash" label="Remove image" onClick={() => setData({ images: imgs.filter((_, j) => j !== i) })} /></div>)}</div>
         {imgs.length < LIMITS.gallery && <label className="ad-btn ad-btn--secondary" style={{ marginTop: 12 }}><I n="plus" s={18} />Add images<input type="file" accept="image/*" multiple hidden onChange={e => add(e.target.files)} /></label>}<p className="ad-help">Up to {LIMITS.gallery} images. They're resized in your browser before upload.</p></>; }

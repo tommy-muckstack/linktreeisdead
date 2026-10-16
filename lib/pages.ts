@@ -4,11 +4,9 @@
 import { getDoc, putDoc, delDoc, listDocs } from "@/lib/store";
 import { Page, newPage, demoPage, sanitizePage, slugifyHandle, validateHandle, bump, migratePage, newId, today, type Block } from "@/lib/model";
 const COL = "pages";
-const chain = new Map<string, Promise<unknown>>();
-/** Serialise read-modify-write per key so concurrent clicks never lose counts. */
-export function locked<T>(key: string, fn: () => Promise<T>): Promise<T> {
-  const prev = chain.get(key) ?? Promise.resolve(); const next = prev.then(fn, fn); chain.set(key, next.catch(() => {})); return next;
-}
+import { locked } from "@/lib/lock";
+import { externalizeDataUrl, collectGarbage, referencedIds, deleteAllImages } from "@/lib/images";
+export { locked };
 export const getPage = async (handle: string) => { const p = await getDoc<Page>(COL, handle); return p ? migratePage(p) : null; };
 const putPage = (p: Page) => putDoc(COL, p.handle, p);
 
@@ -34,7 +32,7 @@ export const handleAvailable = async (h: string) => !validateHandle(h) && !(awai
 export async function savePage(ownerId: string, input: any): Promise<{ page?: Page; error?: string }> {
   const cur = await getPageByOwner(ownerId); if (!cur) return { error: "No page yet" };
   return locked(cur.handle, async () => {
-    const fresh = (await getPage(cur.handle)) ?? cur; let next = sanitizePage(input, fresh);
+    const fresh = (await getPage(cur.handle)) ?? cur; let next = await externalize(sanitizePage(input, fresh), ownerId);
     const wantHandle = typeof input?.handle === "string" ? input.handle.trim().toLowerCase() : fresh.handle;
     if (wantHandle !== fresh.handle) {
       const bad = validateHandle(wantHandle); if (bad) return { error: bad };
@@ -42,12 +40,23 @@ export async function savePage(ownerId: string, input: any): Promise<{ page?: Pa
       next = { ...next, handle: wantHandle }; await putPage(next); await putDoc("owners", ownerId, { handle: wantHandle });
       await delDoc(COL, fresh.handle); return { page: next };
     }
-    await putPage(next); return { page: next };
+    await putPage(next); void cleanupImages(ownerId, next); return { page: next };
   });
+}
+/** Move inline data: images (older pages, or editors that never uploaded) into stored files. */
+async function externalize(p: Page, owner: string): Promise<Page> {
+  const x = (v: string) => (v.startsWith("data:") ? externalizeDataUrl(owner, v) : Promise.resolve(v));
+  p.avatar = await x(p.avatar); p.design.logo = await x(p.design.logo); p.design.wallpaper.image = await x(p.design.wallpaper.image);
+  for (const l of p.links) { l.thumb = await x(l.thumb); if (l.type === "gallery") for (const im of (l.data.images as { src: string }[]) ?? []) im.src = await x(im.src); }
+  return p;
+}
+/** Drop uploads nothing points at any more (checked against the page and the planner). */
+export async function cleanupImages(owner: string, page?: Page | null) {
+  try { const p = page ?? (await getPageByOwner(owner)); const planner = await getDoc("planner", owner); await collectGarbage(owner, referencedIds(p, planner)); } catch { /* best effort */ }
 }
 export async function deletePage(ownerId: string): Promise<void> {
   const p = await getPageByOwner(ownerId); if (!p) return;
-  await delDoc(COL, p.handle); await delDoc("owners", ownerId); for (const c of ["insights", "contacts", "inbox"]) await delDoc(c, p.pid);
+  await delDoc(COL, p.handle); await delDoc("owners", ownerId); for (const c of ["insights", "contacts", "inbox"]) await delDoc(c, p.pid); await deleteAllImages(ownerId);
 }
 
 // ---- insights ----

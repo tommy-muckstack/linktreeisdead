@@ -68,7 +68,7 @@ export type KitCfg = { public: boolean; headline: string; about: string; contact
 export const defaultCard = (): CardCfg => ({ name: "", color: "#D2E823", collect: true, saveContact: false, phone: "", email: "" });
 export const defaultKit = (): KitCfg => ({ public: false, headline: "", about: "", contact: "", rates: [], showStats: true, showLinks: true });
 
-export const LIMITS = { links: 200, socials: 30, title: 30, bio: 160, linkTitle: 255, url: 2000, avatar: 160_000, thumb: 60_000, image: 350_000, logo: 80_000, text: 2000, gallery: 8, stickers: 24 };
+export const LIMITS = { links: 200, socials: 30, title: 30, bio: 160, linkTitle: 255, url: 2000, avatar: 1_500_000, thumb: 1_500_000, image: 1_500_000, logo: 1_500_000, text: 2000, gallery: 20, stickers: 24 };
 const RESERVED = new Set(["app", "api", "login", "signup", "u", "go", "s", "admin", "www", "help", "pricing", "demo-page", "media-kit", "card"]);
 
 export function validateHandle(h: string): string | null {
@@ -103,7 +103,9 @@ const oneOf = <T extends string | number>(v: unknown, all: readonly T[], d: T): 
 const bool = (v: unknown, d = false) => (typeof v === "boolean" ? v : d);
 const color = (v: unknown, d: string) => (typeof v === "string" && /^#[0-9a-fA-F]{6}$/.test(v) ? v.toUpperCase() : d);
 const iso = (v: unknown) => (typeof v === "string" && !Number.isNaN(Date.parse(v)) ? new Date(v).toISOString() : "");
-const img = (v: unknown, max: number, d = "") => (typeof v === "string" && (v === "" || (/^data:image\/(jpeg|png|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(v) && v.length <= max)) ? v : d);
+/** An uploaded file (/<base>/img/<id>) or, for older pages, a small inline data: image (moved to storage on save). */
+export const STORED = /^\/[a-z0-9-]*\/?img\/[A-Za-z0-9_-]{16,40}$/;
+const img = (v: unknown, max: number, d = "") => (typeof v === "string" && (v === "" || STORED.test(v) || (/^data:image\/(jpeg|png|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(v) && v.length <= max)) ? v : d);
 export const newId = () => Math.random().toString(36).slice(2, 10).padEnd(8, "0");
 
 // ---- defaults ----
@@ -154,7 +156,7 @@ function cleanDesign(d: any, prev: Design): Design {
   d = d && typeof d === "object" ? d : {}; const w = d.wallpaper ?? {}, b = d.button ?? {};
   return {
     theme: oneOf(d.theme, [...THEME_IDS, "custom"] as const, prev.theme),
-    wallpaper: { style: oneOf(w.style, WALLPAPERS, prev.wallpaper.style), color: color(w.color, prev.wallpaper.color), color2: color(w.color2, prev.wallpaper.color2), dir: oneOf(w.dir, ["down", "up", "radial"] as const, prev.wallpaper.dir), pattern: oneOf(w.pattern, PATTERNS, "dots"), image: img(w.image, LIMITS.image, prev.wallpaper.image), video: w.video === "" ? "" : normalizeUrl(w.video ?? "") ?? prev.wallpaper.video, blur: Math.min(40, Math.max(0, Number(w.blur) || 0)) },
+    wallpaper: { style: oneOf(w.style, WALLPAPERS, prev.wallpaper.style), color: color(w.color, prev.wallpaper.color), color2: color(w.color2, prev.wallpaper.color2), dir: oneOf(w.dir, ["down", "up", "radial"] as const, prev.wallpaper.dir), pattern: oneOf(w.pattern, PATTERNS, "dots"), image: img(w.image, LIMITS.image, prev.wallpaper.image), video: w.video === "" ? "" : typeof w.video === "string" && STORED.test(w.video) ? w.video : normalizeUrl(w.video ?? "") ?? prev.wallpaper.video, blur: Math.min(40, Math.max(0, Number(w.blur) || 0)) },
     button: { style: oneOf(b.style, BUTTON_STYLES, prev.button.style), radius: oneOf(Number(b.radius), [0, 1, 2, 3] as const, prev.button.radius), shadow: oneOf(b.shadow, SHADOWS, prev.button.shadow), color: color(b.color, prev.button.color), text: color(b.text, prev.button.text) },
     font: oneOf(d.font, FONTS, prev.font), textColor: color(d.textColor, prev.textColor), titleFont: oneOf(d.titleFont, FONTS, prev.titleFont), altTitleFont: bool(d.altTitleFont, prev.altTitleFont), titleColor: color(d.titleColor, prev.titleColor),
     header: oneOf(d.header, HEADER_LAYOUTS, prev.header), titleStyle: oneOf(d.titleStyle, ["text", "logo"] as const, prev.titleStyle), logo: img(d.logo, LIMITS.logo, prev.logo),

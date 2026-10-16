@@ -7,7 +7,7 @@ import { STICKER_PACKS, STICKER_EMOJI } from "@/lib/stickers";
 import { fontStack, googleFontsHref } from "@/lib/fonts";
 import { wallpaperCss, buttonCss } from "@/components/page/PageView";
 import { I } from "@/components/icons";
-import { useAdmin, readImage } from "@/components/admin/AdminProvider";
+import { useAdmin, uploadImage } from "@/components/admin/AdminProvider";
 import { Btn, Choice, ColorField, Field, NavRow, PanelHead, Row, Switch } from "@/components/admin/ui";
 import { FontPicker } from "@/components/admin/HeaderPanel";
 import { track, EVENTS } from "@/lib/analytics";
@@ -21,7 +21,8 @@ function Swatch({ d }: { d: Design }) {
   return <span className="ad-theme__sw" style={{ ...wallpaperCss(d), fontFamily: fontStack(d.font), color: d.titleColor }}><b>Aa</b><i style={{ ...buttonCss(d), borderRadius: d.button.radius === 3 ? 999 : d.button.radius * 6, color: undefined }} /></span>;
 }
 export function DesignPanel() {
-  const { page, edit } = useAdmin(); const d = page.design;
+  const { page, edit, toast } = useAdmin(); const d = page.design;
+  const up = async (f: File | undefined, apply: (url: string) => void, max = 2000) => { if (!f) return; try { apply(await uploadImage(f, max)); } catch (e) { toast((e as Error).message); } };
   const [sub, setSub] = useState<Sub>("");
   useEffect(() => { const read = () => { const h = location.hash.slice(1) as Sub; setSub(SUBS.includes(h) ? h : ""); }; read(); addEventListener("hashchange", read); return () => removeEventListener("hashchange", read); }, []);
   const go = (s: Sub) => { history.pushState(null, "", s ? "#" + s : location.pathname); setSub(s); };
@@ -52,8 +53,9 @@ export function DesignPanel() {
     {d.wallpaper.style === "gradient" && <Row label="Direction"><Choice label="Gradient direction" options={["down", "up", "radial"] as const} value={d.wallpaper.dir} onChange={v => setW({ dir: v })} render={v => cap(v)} /></Row>}
     {d.wallpaper.style === "pattern" && <><h3 className="ad-sec">Pattern</h3><Choice label="Pattern" options={PATTERNS} value={d.wallpaper.pattern as "dots"} onChange={v => setW({ pattern: v })} cols={6} render={v => <><span style={{ width: 44, height: 32, borderRadius: 8, display: "block", ...wallpaperCss({ ...d, wallpaper: { ...d.wallpaper, style: "pattern", pattern: v } }) }} />{cap(v)}</>} /></>}
     {d.wallpaper.style === "blur" && <Row label="Blur"><input type="range" min={4} max={40} value={d.wallpaper.blur || 18} onChange={e => setW({ blur: Number(e.target.value) })} aria-label="Blur amount" /></Row>}
-    {d.wallpaper.style === "image" && <Row label="Image" sub="Resized to fit; portrait photos work best"><label className="ad-upload" aria-label="Upload wallpaper">{d.wallpaper.image ? <img src={d.wallpaper.image} alt="" /> : <I n="image" s={24} />}<em><I n="plus" s={14} /></em><input type="file" accept="image/*" hidden onChange={async e => { const f = e.target.files?.[0]; if (f) setW({ image: await readImage(f, 1200, { quality: 0.75 }) }); }} /></label></Row>}
-    {d.wallpaper.style === "video" && <><Field label="Video URL (.mp4)" value={d.wallpaper.video} placeholder="https://example.com/loop.mp4" onChange={v => setW({ video: v })} /><p className="ad-help">Paste a direct link to an MP4 you host anywhere. It plays muted on a loop.</p></>}
+    {d.wallpaper.style === "image" && <Row label="Image" sub="Resized to fit; portrait photos work best"><label className="ad-upload" aria-label="Upload wallpaper">{d.wallpaper.image ? <img src={d.wallpaper.image} alt="" /> : <I n="image" s={24} />}<em><I n="plus" s={14} /></em><input type="file" accept="image/*" hidden onChange={e => up(e.target.files?.[0], url => setW({ image: url }))} /></label></Row>}
+    {d.wallpaper.style === "video" && <><Row label="Video" sub="An MP4 up to 3.5 MB. It plays muted on a loop."><label className="ad-btn ad-btn--secondary"><I n="video" s={18} />{d.wallpaper.video ? "Replace video" : "Upload video"}<input type="file" accept="video/mp4" hidden onChange={e => up(e.target.files?.[0], url => setW({ video: url }))} /></label></Row>
+      <Field label="Or paste a video link (.mp4)" value={d.wallpaper.video.includes("/img/") ? "" : d.wallpaper.video} placeholder="https://example.com/loop.mp4" onChange={v => setW({ video: v })} /></>}
   </>;
 
   if (sub === "buttons") return <>

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { HEADER_LAYOUTS, LIMITS, FONTS, type HeaderLayout } from "@/lib/model";
 import { fontStack, googleFontsHref } from "@/lib/fonts";
 import { I } from "@/components/icons";
-import { useAdmin, readImage } from "@/components/admin/AdminProvider";
+import { useAdmin, uploadImage } from "@/components/admin/AdminProvider";
 import { track, EVENTS } from "@/lib/analytics";
 import { Choice, ColorField, Field, Menu, IconBtn, PanelHead, Row, Switch, Modal } from "@/components/admin/ui";
 
@@ -22,8 +22,8 @@ export function FontPicker({ value, onPick, onClose, title }: { value: string; o
 export function HeaderPanel() {
   const { page, edit, toast } = useAdmin(); const d = page.design; const [fontOpen, setFontOpen] = useState(false);
   const setD = (patch: Partial<typeof d>) => edit(p => ({ ...p, design: { ...p.design, ...patch } }));
-  const upAvatar = async (f?: File) => { if (!f) return; try { const img = await readImage(f, d.header === "hero" || d.header === "banner" ? 900 : 400, { square: d.header !== "hero" && d.header !== "banner", quality: 0.82 }); edit(p => ({ ...p, avatar: img })); } catch (e) { toast((e as Error).message); } };
-  const upLogo = async (f?: File) => { if (!f) return; try { setD({ logo: await readImage(f, 440, { type: "image/png" }), titleStyle: "logo" }); } catch (e) { toast((e as Error).message); } };
+  const upAvatar = async (f?: File) => { if (!f) return; try { const img = await uploadImage(f, d.header === "hero" || d.header === "banner" ? 1600 : 800, { square: d.header !== "hero" && d.header !== "banner", quality: 0.82 }); edit(p => ({ ...p, avatar: img })); } catch (e) { toast((e as Error).message); } };
+  const upLogo = async (f?: File) => { if (!f) return; try { setD({ logo: await uploadImage(f, 900, { type: "image/png" }), titleStyle: "logo" }); } catch (e) { toast((e as Error).message); } };
   return <>
     <PanelHead title="Header" />
     <h3 className="ad-sec">Layout</h3>

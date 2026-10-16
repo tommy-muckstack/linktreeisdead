@@ -1,13 +1,13 @@
 // Per-owner documents (keyed by user id, so a guest's data moves to their account via adoptGuestDocs):
 // planner/<uid> (Social planner posts) and shortidx/<uid> (their short-link codes). Short links themselves live at short/<code>.
 import { getDoc, putDoc, delDoc } from "@/lib/store";
-import { locked } from "@/lib/pages";
-import { newId, normalizeUrl, today } from "@/lib/model";
+import { locked } from "@/lib/lock";
+import { newId, normalizeUrl, today, STORED } from "@/lib/model";
 
 export type Post = { id: string; date: string; platforms: string[]; caption: string; image: string; link: string; status: "idea" | "scheduled" | "posted" };
 export const getPlanner = async (uid: string) => (await getDoc<{ posts: Post[] }>("planner", uid))?.posts ?? [];
 export function cleanPosts(v: unknown): Post[] {
-  return (Array.isArray(v) ? v : []).slice(0, 500).map((p: any) => ({ id: /^[a-z0-9]{4,12}$/.test(p?.id ?? "") ? p.id : newId(), date: typeof p?.date === "string" && !Number.isNaN(Date.parse(p.date)) ? new Date(p.date).toISOString() : "", platforms: (Array.isArray(p?.platforms) ? p.platforms : []).filter((x: unknown) => typeof x === "string").slice(0, 8), caption: typeof p?.caption === "string" ? p.caption.slice(0, 2200) : "", image: typeof p?.image === "string" && /^data:image\/(jpeg|png|webp);base64,/.test(p.image) && p.image.length < 400_000 ? p.image : "", link: normalizeUrl(p?.link ?? "") ?? "", status: ["idea", "scheduled", "posted"].includes(p?.status) ? p.status : "idea" }));
+  return (Array.isArray(v) ? v : []).slice(0, 500).map((p: any) => ({ id: /^[a-z0-9]{4,12}$/.test(p?.id ?? "") ? p.id : newId(), date: typeof p?.date === "string" && !Number.isNaN(Date.parse(p.date)) ? new Date(p.date).toISOString() : "", platforms: (Array.isArray(p?.platforms) ? p.platforms : []).filter((x: unknown) => typeof x === "string").slice(0, 8), caption: typeof p?.caption === "string" ? p.caption.slice(0, 2200) : "", image: typeof p?.image === "string" && (STORED.test(p.image) || (/^data:image\/(jpeg|png|webp);base64,/.test(p.image) && p.image.length < 1_500_000)) ? p.image : "", link: normalizeUrl(p?.link ?? "") ?? "", status: ["idea", "scheduled", "posted"].includes(p?.status) ? p.status : "idea" }));
 }
 export const savePlanner = (uid: string, posts: Post[]) => putDoc("planner", uid, { posts });
 

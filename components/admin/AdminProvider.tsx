@@ -45,17 +45,26 @@ export function AdminProvider({ initial, user, children }: { initial: Page; user
   return <C.Provider value={{ page, user, save, error, edit, setBlock, rename, flush, reload, toast }}>{children}{toastMsg && <div className="ad-toast" role="status">{toastMsg}</div>}</C.Provider>;
 }
 
-/** Resize an uploaded image in the browser and return a data URL small enough to store with the page. */
-export function readImage(file: File, max: number, opts: { square?: boolean; quality?: number; type?: "image/jpeg" | "image/webp" | "image/png" } = {}): Promise<string> {
+/** Resize an image in the browser, upload it, and return its stored URL (/img/<id>). Animated GIFs and MP4s upload as-is. */
+export async function uploadImage(file: File, max: number, opts: { square?: boolean; quality?: number; type?: "image/jpeg" | "image/webp" | "image/png" } = {}): Promise<string> {
+  const isVideo = file.type === "video/mp4", isGif = file.type === "image/gif";
+  if (!isVideo && !/^image\//.test(file.type)) throw new Error("Choose an image file.");
+  const body: Blob = isVideo || isGif ? file : await resize(file, max, opts);
+  if (body.size > 3_500_000) throw new Error(isVideo ? "Videos can be up to 3.5 MB. Try a shorter clip." : "That image is too big even after resizing.");
+  const r = await fetch(`${BP}/api/img`, { method: "POST", headers: { "content-type": body.type || "application/octet-stream" }, body }).catch(() => null);
+  const j = await r?.json().catch(() => null);
+  if (!r?.ok || !j?.url) throw new Error(j?.error ?? "Upload failed. Check your connection and try again.");
+  return j.url as string;
+}
+function resize(file: File, max: number, opts: { square?: boolean; quality?: number; type?: string }): Promise<Blob> {
   return new Promise((res, rej) => {
-    if (!/^image\//.test(file.type)) return rej(new Error("Choose an image file."));
     const img = new Image(); const u = URL.createObjectURL(file);
     img.onload = () => {
       let sw = img.width, sh = img.height, sx = 0, sy = 0;
       if (opts.square) { const s = Math.min(sw, sh); sx = (sw - s) / 2; sy = (sh - s) / 2; sw = sh = s; }
       const k = Math.min(1, max / Math.max(sw, sh)); const c = document.createElement("canvas"); c.width = Math.round(sw * k); c.height = Math.round(sh * k);
       c.getContext("2d")!.drawImage(img, sx, sy, sw, sh, 0, 0, c.width, c.height); URL.revokeObjectURL(u);
-      res(c.toDataURL(opts.type ?? "image/jpeg", opts.quality ?? 0.82));
+      c.toBlob(b => (b ? res(b) : rej(new Error("That image couldn't be read."))), opts.type ?? "image/jpeg", opts.quality ?? 0.86);
     };
     img.onerror = () => { URL.revokeObjectURL(u); rej(new Error("That image couldn't be read.")); }; img.src = u;
   });

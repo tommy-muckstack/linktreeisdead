@@ -43,6 +43,13 @@ ok(await vis(p.locator("[data-testid=link-row]", { hasText: "My shop" })), "rest
 await p.getByRole("link", { name: "Design" }).click(); await p.getByRole("button", { name: /Theme/ }).click(); await p.getByRole("button", { name: "Blocks" }).click(); await saved();
 const bg = await p.locator(".ad-phone .pv-bg").evaluate(e => getComputedStyle(e).backgroundColor); ok(bg === "rgb(123, 44, 245)", `Blocks theme applied to preview (${bg})`);
 await p.getByRole("link", { name: "Header" }).click(); await p.getByRole("radio", { name: /Banner/ }).click(); await p.getByLabel("Title", { exact: true }).fill("Studio Test"); await saved();
+// profile photo upload: resized in the browser, stored as its own file, served from /img/<id>
+const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==", "base64");
+await p.locator('label[aria-label="Upload profile image"] input[type=file]').setInputFiles({ name: "me.png", mimeType: "image/png", buffer: png });
+await p.waitForFunction(() => /\/img\//.test(document.querySelector(".ad-phone .pv-avatar__img")?.getAttribute("src") ?? ""), null, { timeout: 10000 }).catch(() => {}); await saved();
+const avatarSrc = await p.locator(".ad-phone .pv-avatar__img").first().getAttribute("src");
+ok(/\/img\/[A-Za-z0-9_-]{16,}/.test(avatarSrc ?? ""), "uploaded photo is stored as a file");
+const imgRes = await p.request.get(BASE.replace(/\/linktreeisdead$/, "") + (avatarSrc.match(/\/[a-z0-9-]*\/img\/[A-Za-z0-9_-]+/)?.[0] ?? "")); ok(imgRes.status() === 200 && /image\//.test(imgRes.headers()["content-type"] ?? ""), "uploaded photo is served");
 // settings: subscribe + messages
 await p.getByRole("link", { name: "Settings" }).click(); await p.getByRole("switch", { name: "Let visitors subscribe" }).click(); await p.getByRole("switch", { name: "Let visitors message me" }).click(); await saved();
 

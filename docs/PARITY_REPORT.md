@@ -22,7 +22,7 @@ Reference: Linktree's logged-out pages and a free account's admin (with the 7-da
 | 7 | Delete confirmation / archive | Fixed: delete asks first, Archive keeps stats and restores |
 | 8 | Thumbnails, layouts, scheduling, lock, redirect, prioritize, animations, collections | Fixed: Classic/Featured, thumbnail or icon, schedule start/end, code/age/sensitive lock, redirect, prioritize, 5 animations, collections (stack/grid/carousel) |
 | 9 | Social icons | Fixed: 27 platforms with SVG icons, top/bottom position, per-icon on/off |
-| 10 | Profile photo | Fixed: upload with in-browser resize. 5 header layouts, logo title |
+| 10 | Profile photo | Fixed: upload (resized in the browser, stored as its own file at `/img/<id>`), 5 header layouts, logo title |
 | 11 | Themes / fonts / backgrounds / colours | Fixed: 20 themes recreated in CSS. Wallpaper fill/gradient/blur/pattern/image/video, button solid/glass/outline + 4 radii + 4 shadows + colours, 37 fonts, alt title font, stickers, hide footer |
 | 12 | Live preview | Kept: phone preview on the right, preview toggle under 1180px |
 | 13 | Public profile Share / Shop / rich cards | Share sheet, embeds, forms, FAQ, gallery, map, events, contact card, discount. Shop is an exception (no selling) |
@@ -33,7 +33,7 @@ Reference: Linktree's logged-out pages and a free account's admin (with the 7-da
 | 18 | Share sheet + QR | Fixed: Share popover (copy, QR with PNG/SVG download, social intents, business card) |
 | 19 | Signed-out `/app` opens a guest workspace | Exception: guest sessions are the owner's rule (no login unless needed) |
 | 20 | Branded 404 | Fixed in PR #4 |
-| 21 | Console | Clean: e2e asserts no page errors. Hydration mismatches fixed (origin is read after mount) |
+| 21 | Console | Clean: e2e asserts no page errors. Hydration mismatches fixed (origin is read after mount). Sign-in errors never show Firebase's raw text |
 | 22 | 390px | Editor has a bottom tab bar + preview toggle, public page and dashboards are responsive. e2e checks no horizontal scroll |
 
 ## Admin surface vs Linktree

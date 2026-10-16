@@ -7,7 +7,7 @@ import type { Post, Short } from "@/lib/owned";
 import { I, SocialIcon } from "@/components/icons";
 import { Mark } from "@/components/Mark";
 import { DashHead } from "@/components/admin/AdminChrome";
-import { useAdmin, useOrigin, readImage } from "@/components/admin/AdminProvider";
+import { useAdmin, useOrigin, uploadImage } from "@/components/admin/AdminProvider";
 import { useInsights } from "@/components/admin/useInsights";
 import { QrModal } from "@/components/admin/QrModal";
 import { Btn, ColorField, Empty, Field, IconBtn, Modal, Row, Switch, plural } from "@/components/admin/ui";
@@ -88,7 +88,7 @@ export function PlannerDash() {
       <Row label="When"><input className="ad-input" style={{ width: 230 }} type="datetime-local" value={edit.date ? new Date(new Date(edit.date).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ""} onChange={e => setEdit({ ...edit, date: e.target.value ? new Date(e.target.value).toISOString() : "" })} /></Row>
       <Row label="Status"><select className="ad-input" style={{ width: 160 }} value={edit.status} onChange={e => setEdit({ ...edit, status: e.target.value as Post["status"] })}><option value="idea">Idea</option><option value="scheduled">Scheduled</option><option value="posted">Posted</option></select></Row>
       <Field label="Link in bio for this post (optional)" value={edit.link} onChange={v => setEdit({ ...edit, link: v })} />
-      <Row label="Image"><label className="ad-upload">{edit.image ? <img src={edit.image} alt="" /> : <I n="image" s={22} />}<em><I n="plus" s={14} /></em><input type="file" accept="image/*" hidden onChange={async e => { const f = e.target.files?.[0]; if (f) setEdit({ ...edit, image: await readImage(f, 1080, { quality: 0.8 }) }); }} /></label></Row>
+      <Row label="Image"><label className="ad-upload">{edit.image ? <img src={edit.image} alt="" /> : <I n="image" s={22} />}<em><I n="plus" s={14} /></em><input type="file" accept="image/*" hidden onChange={async e => { const f = e.target.files?.[0]; if (!f) return; try { setEdit({ ...edit, image: await uploadImage(f, 1600) }); } catch (err) { toast((err as Error).message); } }} /></label></Row>
       <div className="ad-mini" style={{ marginTop: 16, flexWrap: "wrap" }}>
         {posts?.some(p => p.id === edit.id) && <Btn kind="danger" icon="trash" onClick={() => { void save((posts ?? []).filter(p => p.id !== edit.id)); setEdit(null); }}>Delete</Btn>}
         <Btn kind="secondary" icon="copy" onClick={async () => { await navigator.clipboard.writeText(edit.caption).catch(() => {}); toast("Caption copied"); }}>Copy caption</Btn>

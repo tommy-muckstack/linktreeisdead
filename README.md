@@ -23,6 +23,6 @@ Env (production): `NEXT_PUBLIC_FIREBASE_*`, `FIREBASE_SERVICE_ACCOUNT_JSON`, `AU
 ## Gaps
 
 - Left out on purpose: selling (Earn/Shop), AI features, social-API tools (Instagram auto-reply, follower stats), wallet passes, third-party mailing-list sync (export CSV instead). See `docs/PARITY_REPORT.md`.
-- Images (avatars, thumbnails, galleries, wallpapers) are resized in the browser and stored inside the page document, so they're capped in size. Video wallpapers take a hosted MP4 URL.
+- Uploads (photos, thumbnails, galleries, wallpapers, logos, planner images, MP4 wallpapers up to 3.5 MB) are resized in the browser and stored as their own files (`img/<id>`, served at `/img/<id>`, 150 MB per account). Files nothing uses are cleaned up after 6 hours.
 
 Not affiliated with Linktree. Apache-2.0.
