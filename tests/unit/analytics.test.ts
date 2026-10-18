@@ -13,6 +13,8 @@ import { scrub } from "@/lib/analytics/posthog";
 describe("analytics privacy", () => {
   it("strips query strings, hashes, titles and editor ids", () => {
     const e = scrub({ event: "$pageview", properties: { $current_url: "https://yourappisdead.com/linktreeisdead/app/links/edit/abc123?x=1#y", $referrer: "https://google.com/search?q=me", title: "Someone's page" } });
-    expect(e.properties.$current_url).toBe("https://yourappisdead.com/linktreeisdead/app/links/edit/:id"); expect(e.properties.$referrer).toBe("https://google.com/search"); expect("title" in e.properties).toBe(false);
+    expect(e.properties.$current_url).toBe("https://yourappisdead.com/linktreeisdead/app/links/edit/:id");
+    const f = scrub({ event: "$pageview", properties: { $session_entry_url: "https://a.io/x?q=1", $set_once: { $initial_current_url: "https://a.io/y?z=2#h", $initial_pathname: "/y?z" } }, $set: { $current_url: "https://a.io/z?k=3" } });
+    expect(f.properties.$session_entry_url).toBe("https://a.io/x"); expect(f.properties.$set_once.$initial_current_url).toBe("https://a.io/y"); expect(f.properties.$set_once.$initial_pathname).toBe("/y"); expect(f.$set.$current_url).toBe("https://a.io/z"); expect(e.properties.$referrer).toBe("https://google.com/search"); expect("title" in e.properties).toBe(false);
   });
 });
