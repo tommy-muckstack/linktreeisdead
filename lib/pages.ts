@@ -12,7 +12,9 @@ export async function getPageByOwner(ownerId: string): Promise<Page | null> { re
 export async function ensurePage(user: { id: string; name: string; email: string; demo: boolean }, wanted?: string): Promise<Page> {
   const have = await getPageByOwner(user.id); if (have) return have;
   if (user.demo) { const d = demoPage(); await putDoc(COL, d.handle, d); return d; }
-  let base = slugifyHandle(wanted && !validateHandle(wanted) ? wanted : (user.email.split("@")[0] || user.name)); let h = base, i = 1;
+  // The handle typed on the claim form is used only when it is valid and still free; otherwise fall back to the default seed.
+  const want = (wanted ?? "").trim().toLowerCase(); const useWanted = !!want && !validateHandle(want) && !(await getPage(want));
+  let base = slugifyHandle(useWanted ? want : (user.email.split("@")[0] || user.name)); let h = base, i = 1;
   while ((await getPage(h)) || validateHandle(h)) h = (base + ++i).slice(0, 30);
   const p = newPage(user.id, h, user.name || h); await putDoc(COL, h, p); return p;
 }
