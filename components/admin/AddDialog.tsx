@@ -17,7 +17,7 @@ export function AddDialog({ onClose, parent = "" }: { onClose: () => void; paren
   const asUrl = useMemo(() => { const t = q.trim(); return /\.[a-z]{2,}/i.test(t) && !/\s/.test(t) ? normalizeUrl(t) : null; }, [q]);
   const shown = useMemo(() => { const t = q.trim().toLowerCase(); if (t && !asUrl) return CATALOG.filter(e => (e.name + " " + e.blurb).toLowerCase().includes(t)); return cat === "all" ? CATALOG : CATALOG.filter(e => e.cats.includes(cat)); }, [q, cat, asUrl]);
   const create = (b: Block, source = "catalog") => {
-    track(EVENTS.app_block_added, { block_type: b.type, source: parent ? "collection" : source });
+    track(EVENTS.app_block_added, { block_type: b.type, via: parent ? "collection" : source });
     if (page.links.length >= LIMITS.links) { toast(`You can have up to ${LIMITS.links} blocks.`); return; }
     edit(p => ({ ...p, links: [b, ...p.links] })); onClose(); router.push(`/app/links/edit/${b.id}`);
   };

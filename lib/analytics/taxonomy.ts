@@ -21,12 +21,12 @@ export const EVENTS = {
   app_business_card_downloaded: "app_business_card_downloaded", // format ("png" | "vcf")
   app_data_deleted: "app_data_deleted",
   // ---- page editor ----
-  app_block_added: "app_block_added",              // block_type, source ("paste" | "catalog" | "quick" | "collection")
+  app_block_added: "app_block_added",              // block_type, via ("paste" | "catalog" | "quick" | "collection")
   app_block_archived: "app_block_archived",        // count
   app_block_deleted: "app_block_deleted",          // count
   app_block_toggled: "app_block_toggled",          // visible (bool)
   app_powerup_set: "app_powerup_set",              // powerup ("schedule" | "lock" | "animation" | "prioritize" | "redirect"), value
-  app_theme_applied: "app_theme_applied",          // theme, source ("picker" | "shuffle" | "onboarding" | "enhance")
+  app_theme_applied: "app_theme_applied",          // theme, via ("picker" | "shuffle" | "onboarding" | "enhance")
   app_header_layout_set: "app_header_layout_set",  // layout
   app_social_added: "app_social_added",            // platform
   app_setting_changed: "app_setting_changed",      // setting, on (bool)

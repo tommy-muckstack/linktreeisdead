@@ -34,11 +34,11 @@ export function DesignPanel() {
   const fonts = googleFontsHref(THEME_IDS.map(t => THEMES[t].d.font), "Aa");
 
   if (sub === "theme") return <>
-    <PanelHead title="Theme" back={() => go("")} right={<Btn small kind="ghost" icon="dice" onClick={() => { const t = THEME_IDS[Math.floor(Math.random() * THEME_IDS.length)]!; track(EVENTS.app_theme_applied, { theme: t, source: "shuffle" }); edit(p => ({ ...p, design: applyTheme(p.design, t) })); }}>Shuffle</Btn>} />
+    <PanelHead title="Theme" back={() => go("")} right={<Btn small kind="ghost" icon="dice" onClick={() => { const t = THEME_IDS[Math.floor(Math.random() * THEME_IDS.length)]!; track(EVENTS.app_theme_applied, { theme: t, via: "shuffle" }); edit(p => ({ ...p, design: applyTheme(p.design, t) })); }}>Shuffle</Btn>} />
     {fonts && <link rel="stylesheet" href={fonts} />}
     <div className="ad-themes">
       <button type="button" className={"ad-theme" + (d.theme === "custom" ? " on" : "")} onClick={() => go("wallpaper")}><span className="ad-theme__sw" style={{ display: "grid", placeItems: "center", background: "#F1F1EE" }}><I n="design" s={22} /></span>Custom</button>
-      {THEME_IDS.map(t => { const td = applyTheme(d, t); return <button key={t} type="button" aria-pressed={d.theme === t} className={"ad-theme" + (d.theme === t ? " on" : "")} onClick={() => { track(EVENTS.app_theme_applied, { theme: t, source: "picker" }); edit(p => ({ ...p, design: applyTheme(p.design, t) })); }}><Swatch d={td} />{THEMES[t].name}</button>; })}
+      {THEME_IDS.map(t => { const td = applyTheme(d, t); return <button key={t} type="button" aria-pressed={d.theme === t} className={"ad-theme" + (d.theme === t ? " on" : "")} onClick={() => { track(EVENTS.app_theme_applied, { theme: t, via: "picker" }); edit(p => ({ ...p, design: applyTheme(p.design, t) })); }}><Swatch d={td} />{THEMES[t].name}</button>; })}
     </div>
     <p className="ad-help" style={{ marginTop: 16 }}>Pick a theme, then tweak anything under Customize. Changes make it your own custom theme.</p>
   </>;
