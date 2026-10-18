@@ -100,16 +100,18 @@ export function PlannerDash() {
 }
 
 export function ShortenerDash() {
-  const { toast } = useAdmin(); const [items, setItems] = useState<Short[] | null>(null); const [url, setUrl] = useState(""); const [code, setCode] = useState(""); const [err, setErr] = useState(""); const [qr, setQr] = useState<Short | null>(null);
+  const { toast, user } = useAdmin(); const [needSignIn, setNeedSignIn] = useState(user.guest); const [items, setItems] = useState<Short[] | null>(null); const [url, setUrl] = useState(""); const [code, setCode] = useState(""); const [err, setErr] = useState(""); const [qr, setQr] = useState<Short | null>(null);
   useEffect(() => { fetch(`${BP}/api/short`).then(r => r.json()).then(j => setItems(j.items ?? [])).catch(() => setItems([])); }, []);
   const origin = useOrigin(); const short = (c: string) => `${origin}${BP}/s/${c}`;
-  const create = async (e: React.FormEvent) => { e.preventDefault(); setErr(""); const r = await fetch(`${BP}/api/short`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ url, code }) }); const j = await r.json(); if (!r.ok) return setErr(j.error); track(EVENTS.app_short_link_created, { custom: !!code }); setItems(x => [j.item, ...(x ?? [])]); setUrl(""); setCode(""); await navigator.clipboard.writeText(short(j.item.code)).catch(() => {}); toast("Short link copied"); };
+  const create = async (e: React.FormEvent) => { e.preventDefault(); setErr(""); const r = await fetch(`${BP}/api/short`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ url, code }) }); const j = await r.json(); if (j.signIn) return setNeedSignIn(true); if (!r.ok) return setErr(j.error); track(EVENTS.app_short_link_created, { custom: !!code }); setItems(x => [j.item, ...(x ?? [])]); setUrl(""); setCode(""); await navigator.clipboard.writeText(short(j.item.code)).catch(() => {}); toast("Short link copied"); };
   return <>
     <DashHead title="Link shortener" />
     <div className="ad-dbody">
-      <form className="ad-tile" onSubmit={create}><h3 className="ad-sec">Shorten, share and track your links</h3>
+      {needSignIn ? <div className="ad-tile" data-testid="short-signin"><Empty icon="shortener" title="Sign in to create short links" text="Short links are public links on our domain, so they need a free account. Your page and everything you've made come with you.">
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center" }}><a className="ad-btn ad-btn--primary" href={`${BP}/login?callbackUrl=${encodeURIComponent(BP + "/app/link-shortener")}`}>Sign in</a><a className="ad-btn ad-btn--secondary" href={`${BP}/login?mode=signup&callbackUrl=${encodeURIComponent(BP + "/app/link-shortener")}`}>Create a free account</a></div></Empty></div>
+      : <form className="ad-tile" onSubmit={create}><h3 className="ad-sec">Shorten, share and track your links</h3>
         <Field label="Long URL" value={url} onChange={v => { setUrl(v); setErr(""); }} placeholder="https://example.com/a/very/long/link" error={err} />
-        <div className="ad-mini"><span className="ad-muted" style={{ whiteSpace: "nowrap" }}>{BP}/s/</span><input className="ad-input" placeholder="custom back-half (optional)" value={code} onChange={e => setCode(e.target.value)} aria-label="Custom back-half" /><Btn type="submit" icon="shortener" disabled={!url.trim()}>Shorten</Btn></div></form>
+        <div className="ad-mini"><span className="ad-muted" style={{ whiteSpace: "nowrap" }}>{BP}/s/</span><input className="ad-input" placeholder="custom back-half (optional)" value={code} onChange={e => setCode(e.target.value)} aria-label="Custom back-half" /><Btn type="submit" icon="shortener" disabled={!url.trim()}>Shorten</Btn></div></form>}
       <h3 className="ad-sec" style={{ marginTop: 28 }}>Your links</h3>
       {items === null ? <p className="ad-muted">Loading…</p> : items.length === 0 ? <div className="ad-tile"><Empty icon="shortener" title="No short links yet" text="Short links track clicks in real time, without cookies, and every one gets a QR code." /></div>
         : <div className="ad-list2">{items.map(s => <div key={s.code} className="ad-card"><span className="ad-card__ic"><I n="link" s={18} /></span><span className="ad-card__m"><span className="ad-card__t">{short(s.code).replace(/^https?:\/\//, "")}</span><span className="ad-card__s">{s.url}</span></span><span className="ad-muted" style={{ whiteSpace: "nowrap" }}>{plural(s.clicks, "click")}</span>

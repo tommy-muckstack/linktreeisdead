@@ -53,6 +53,8 @@ export async function uploadImage(file: File, max: number, opts: { square?: bool
   if (body.size > 3_500_000) throw new Error(isVideo ? "Videos can be up to 3.5 MB. Try a shorter clip." : "That image is too big even after resizing.");
   const r = await fetch(`${BP}/api/img`, { method: "POST", headers: { "content-type": body.type || "application/octet-stream" }, body }).catch(() => null);
   const j = await r?.json().catch(() => null);
+  // Guest upload quota: offer sign-in right there (it lifts the limit and keeps the page) rather than a dead-end error.
+  if (j?.signIn && confirm(`${j.error}\n\nSign in now? Your page comes with you.`)) { location.assign(`${BP}/login?callbackUrl=${encodeURIComponent(location.pathname)}`); throw new Error("Taking you to sign in…"); }
   if (!r?.ok || !j?.url) throw new Error(j?.error ?? "Upload failed. Check your connection and try again.");
   return j.url as string;
 }

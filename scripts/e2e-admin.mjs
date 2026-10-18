@@ -70,9 +70,13 @@ await pub.getByRole("button", { name: "Share" }).click(); ok(await vis(pub.getBy
 await p.goto(BASE + "/app/audience", { waitUntil: "networkidle" }); ok(await vis(p.getByText("fan@example.com")), "signup lands in Audience");
 await p.goto(BASE + "/app/messaging", { waitUntil: "networkidle" }); await p.getByRole("button", { name: /A Visitor/ }).click(); ok(await vis(p.locator(".ad-inbox__msg").getByText("Hello there")), "message lands in Messaging");
 await p.goto(BASE + "/app/insights", { waitUntil: "networkidle" }); const views = Number(await p.locator(".ad-stat b").first().textContent()); ok(views >= 2, `Insights counts views (${views})`);
-// link shortener
-await p.goto(BASE + "/app/link-shortener", { waitUntil: "networkidle" }); await p.getByLabel("Long URL").fill("https://example.com/long/path"); await p.getByLabel("Custom back-half").fill("e2e" + Date.now().toString(36)); await p.getByRole("button", { name: "Shorten" }).click();
-const short = await p.locator(".ad-card__t").first().textContent(); const sp = await ctx.newPage(); await sp.goto("http://" + short); ok(sp.url().startsWith("https://example.com/long/path"), "short link redirects");
+// link shortener: guests are asked to sign in (short links are public URLs on our domain); a signed-in account creates one
+await p.goto(BASE + "/app/link-shortener", { waitUntil: "networkidle" }); ok(await vis(p.getByTestId("short-signin").getByRole("link", { name: "Sign in" })), "guest link shortener prompts sign-in");
+const dctx = await b.newContext({ viewport: { width: 1440, height: 900 }, userAgent: UA }); await dctx.route(/^https:\/\/(example\.com|www\.example\.com)\//, r => r.fulfill({ status: 200, contentType: "text/html", body: "<h1>outside</h1>" }));
+const dp = await dctx.newPage(); dp.on("pageerror", e => errors.push(e.message)); await dp.request.post(BASE + "/api/session/demo");
+await dp.goto(BASE + "/app/link-shortener", { waitUntil: "networkidle" }); await dp.getByLabel("Long URL").fill("https://example.com/long/path"); await dp.getByLabel("Custom back-half").fill("e2e" + Date.now().toString(36)); await dp.getByRole("button", { name: "Shorten" }).click();
+await dp.locator(".ad-card__t").first().waitFor({ timeout: 8000 }).catch(() => {});
+const short = await dp.locator(".ad-card__t").first().textContent(); const sp = await dctx.newPage(); await sp.goto("http://" + short); ok(sp.url().startsWith("https://example.com/long/path"), "short link redirects");
 // planner
 await p.goto(BASE + "/app/social-planner", { waitUntil: "networkidle" }); await p.getByRole("button", { name: "New post" }).click(); await p.getByLabel("Caption").fill("Launch day post"); await p.getByRole("button", { name: "Save" }).click();
 await p.getByRole("button", { name: "List" }).click(); ok(await vis(p.getByText("Launch day post")), "planned post is listed");
