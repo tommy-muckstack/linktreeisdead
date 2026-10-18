@@ -3,7 +3,7 @@
 // drop them; the key is the project's publishable token. Without NEXT_PUBLIC_POSTHOG_KEY everything is a no-op.
 import React, { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { superProps, type EventName, type Surface } from "./taxonomy";
+import { superProps, LEGACY_PROPS, type EventName, type Surface } from "./taxonomy";
 import { BP } from "@/lib/basepath";
 type PH = typeof import("posthog-js").default;
 let ph: PH | null = null; let loading: Promise<PH | null> | null = null;
@@ -27,7 +27,7 @@ async function client(): Promise<PH | null> {
     // product/surface/platform are persisted super properties, so set them here or the hub's values (product=yourappisdead)
     // leak onto this app's events via the shared cookie.
     // Every IsDead app shares the yourappisdead.com cookie, so drop super properties other apps' older taxonomy left behind.
-    for (const k of ["app", "app_family", "base_path"]) p.unregister(k);
+    for (const k of LEGACY_PROPS) p.unregister(k);
     p.register({ ...superProps(surfaceOf(location.pathname)), env: process.env.NODE_ENV === "production" ? "production" : "development" });
     ph = p; if (process.env.NODE_ENV !== "production") (window as unknown as { __posthog?: PH }).__posthog = p;
     return p;
