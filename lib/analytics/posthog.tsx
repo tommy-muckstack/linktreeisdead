@@ -26,6 +26,8 @@ async function client(): Promise<PH | null> {
     });
     // product/surface/platform are persisted super properties, so set them here or the hub's values (product=yourappisdead)
     // leak onto this app's events via the shared cookie.
+    // Every IsDead app shares the yourappisdead.com cookie, so drop super properties other apps' older taxonomy left behind.
+    for (const k of ["app", "app_family", "base_path"]) p.unregister(k);
     p.register({ ...superProps(surfaceOf(location.pathname)), env: process.env.NODE_ENV === "production" ? "production" : "development" });
     ph = p; if (process.env.NODE_ENV !== "production") (window as unknown as { __posthog?: PH }).__posthog = p;
     return p;
