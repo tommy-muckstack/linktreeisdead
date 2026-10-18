@@ -9,3 +9,10 @@ describe("analytics taxonomy", () => {
     expect(superProps("landing").surface).toBe("landing");
   });
 });
+import { scrub } from "@/lib/analytics/posthog";
+describe("analytics privacy", () => {
+  it("strips query strings, hashes, titles and editor ids", () => {
+    const e = scrub({ event: "$pageview", properties: { $current_url: "https://yourappisdead.com/linktreeisdead/app/links/edit/abc123?x=1#y", $referrer: "https://google.com/search?q=me", title: "Someone's page" } });
+    expect(e.properties.$current_url).toBe("https://yourappisdead.com/linktreeisdead/app/links/edit/:id"); expect(e.properties.$referrer).toBe("https://google.com/search"); expect("title" in e.properties).toBe(false);
+  });
+});

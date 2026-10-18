@@ -13,6 +13,15 @@ export const analyticsEnabled = !!KEY;
 // "app" = the editor plus what it publishes (public pages, short links); everything else is the marketing site.
 const surfaceOf = (path: string): Surface => (/^\/(app|u|go|s)(\/|$)/.test(path.slice(BP.length)) ? "app" : "landing");
 
+// Privacy: URL properties keep only origin + path (query strings and hashes can hold user content like prefilled links),
+// path segments listed in PRIVATE_PATHS are masked (tokens/ids that work like passwords), and the page title is dropped
+// (it can be a user's own page or document name).
+const PRIVATE_PATHS: RegExp[] = [/(\/app\/links\/edit\/)[^/?#]+/];
+const URL_PROPS = ["$current_url", "$referrer", "$initial_current_url", "$initial_referrer", "$prev_pageview_pathname", "$pathname"];
+const cleanUrl = (v: unknown) => { if (typeof v !== "string" || !v || v === "$direct") return v; let u = v.split(/[?#]/)[0]!; for (const re of PRIVATE_PATHS) u = u.replace(re, "$1:id"); return u; };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function scrub(e: any) { if (!e?.properties) return e; for (const k of URL_PROPS) if (k in e.properties) e.properties[k] = cleanUrl(e.properties[k]); delete e.properties.title; if (e.$set) for (const k of URL_PROPS) if (k in e.$set) e.$set[k] = cleanUrl(e.$set[k]); if (e.$set_once) for (const k of URL_PROPS) if (k in e.$set_once) e.$set_once[k] = cleanUrl(e.$set_once[k]); return e; }
+
 async function client(): Promise<PH | null> {
   if (!KEY || typeof window === "undefined") return null;
   if (ph) return ph;
@@ -21,7 +30,7 @@ async function client(): Promise<PH | null> {
     const debug = process.env.NODE_ENV !== "production" && typeof localStorage !== "undefined" && localStorage.getItem("isdead_ph_debug") === "1"; // dev only: verbose logs + accept automated browsers (posthog-js drops bot/webdriver traffic by default)
     p.init(KEY, {
       api_host: `${location.origin}${BP}/ingest`, ui_host: UI_HOST,
-      capture_pageview: false, capture_pageleave: true, autocapture: false, disable_session_recording: true, capture_heatmaps: false, capture_performance: false,
+      capture_pageview: false, capture_pageleave: true, autocapture: false, disable_session_recording: true, capture_heatmaps: false, capture_performance: false, before_send: scrub,
       persistence: "localStorage+cookie", person_profiles: "always", debug, opt_out_useragent_filter: debug,
     });
     // product/surface/platform are persisted super properties, so set them here or the hub's values (product=yourappisdead)
@@ -50,6 +59,6 @@ export function resetIdentity() { void client().then(p => { p?.reset(); p?.regis
 /** Mount once in the root layout: boots the client and sends a page view per route change. */
 export function Analytics() {
   const path = usePathname();
-  useEffect(() => { if (!path) return; void client().then(p => { if (!p) return; p.register({ surface: surfaceOf(location.pathname) }); p.capture("$pageview", { $current_url: location.href.replace(/\/app\/links\/edit\/[a-z0-9]+/, "/app/links/edit/:id") }); }); }, [path]);
+  useEffect(() => { if (!path) return; void client().then(p => { if (!p) return; p.register({ surface: surfaceOf(location.pathname) }); p.capture("$pageview"); }); }, [path]);
   return null;
 }

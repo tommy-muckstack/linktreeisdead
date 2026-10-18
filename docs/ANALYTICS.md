@@ -35,6 +35,7 @@ sessions are never identified (no person profile); `account_type: "demo"` is reg
 Rules:
 - Properties are `snake_case`. Never send user content (text, emails, titles, file names) as a property; send kinds, counts and ids only.
 - Adding an event = add it to `lib/analytics/taxonomy.ts` (the only place event names are defined) and this table. The unit test rejects names outside `app_` / `landing_` and names containing the product.
+- Privacy: `scrub` (before_send) keeps only origin + path on URL properties, masks editor ids, and drops the page `title`.
 - `resetIdentity()` (sign-out) re-registers the super properties, since PostHog's `reset()` clears them.
 
 ## Where the calls live (LinktreeIsDead)
