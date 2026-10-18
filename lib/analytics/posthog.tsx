@@ -18,7 +18,7 @@ async function client(): Promise<PH | null> {
   if (ph) return ph;
   loading ??= import("posthog-js").then(m => {
     const p = m.default;
-    const debug = process.env.NODE_ENV !== "production" && typeof localStorage !== "undefined" && localStorage.getItem("lt_ph_debug") === "1"; // dev only: verbose logs + accept automated browsers (posthog-js drops bot/webdriver traffic by default)
+    const debug = process.env.NODE_ENV !== "production" && typeof localStorage !== "undefined" && localStorage.getItem("isdead_ph_debug") === "1"; // dev only: verbose logs + accept automated browsers (posthog-js drops bot/webdriver traffic by default)
     p.init(KEY, {
       api_host: `${location.origin}${BP}/ingest`, ui_host: UI_HOST,
       capture_pageview: false, capture_pageleave: true, autocapture: false, disable_session_recording: true,
