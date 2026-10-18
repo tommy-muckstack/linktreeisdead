@@ -55,7 +55,7 @@ export async function trackNow(event: EventName, props: Record<string, string | 
   await Promise.race([client().then(p => { p?.capture(event, { surface: surfaceOf(location.pathname), ...props }, { send_instantly: true }); }).catch(() => {}), new Promise(r => setTimeout(r, 1500))]);
 }
 export function identify(uid: string, props: { account_type: "firebase" | "demo" | "guest"; app?: string }) {
-  void client().then(p => { if (!p) return; if (props.account_type === "firebase") p.identify(uid, { account_type: props.account_type }); else p.register({ account_type: props.account_type }); });
+  void client().then(p => { if (!p) return; p.register({ account_type: props.account_type }); if (props.account_type === "firebase") p.identify(uid, { account_type: props.account_type }); });
 }
 // reset() wipes super properties too, so put this app's back straight away.
 export function resetIdentity() { void client().then(p => { p?.reset(); p?.register({ ...superProps(surfaceOf(location.pathname)), env: ENV }); }); }
