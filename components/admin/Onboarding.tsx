@@ -23,7 +23,7 @@ export function Onboarding() {
   const [goals, setGoals] = useState<string[]>(page.goals); const [plats, setPlats] = useState<Partial<Record<SocialKind, string>>>({});
   const finish = async (skipped = false) => {
     const socials = Object.entries(plats).flatMap(([k, v]) => { const u = normalizeSocial(k as SocialKind, v ?? ""); return u ? [{ kind: k as SocialKind, url: u, enabled: true }] : []; });
-    track(EVENTS.auth_onboarding_completed, { skipped, goals: goals.length, socials: socials.length });
+    track(EVENTS.app_onboarding_completed, { skipped, goals: goals.length, socials: socials.length });
     edit(p => ({ ...p, onboarded: true, goals, socials: [...p.socials.filter(s => !socials.some(x => x.kind === s.kind)), ...socials] })); await flush(); router.push("/app/links");
   };
   const next = async () => {

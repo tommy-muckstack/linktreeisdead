@@ -10,7 +10,7 @@ export function QrModal({ url, name, onClose }: { url: string; name: string; onC
   const [style, setStyle] = useState<QrStyle>({ ...DEFAULT_STYLE, fg: "#000000" });
   const svg = useMemo(() => renderQrSvg(url, style, { width: 1024 }), [url, style]);
   const save = (kind: "svg" | "png") => {
-    track(EVENTS.link_qr_downloaded, { format: kind }); const file = `${name}-qr.${kind}`; const blob = new Blob([svg], { type: "image/svg+xml" }); const href = URL.createObjectURL(blob);
+    track(EVENTS.app_qr_downloaded, { format: kind }); const file = `${name}-qr.${kind}`; const blob = new Blob([svg], { type: "image/svg+xml" }); const href = URL.createObjectURL(blob);
     const done = (h: string) => { const a = document.createElement("a"); a.href = h; a.download = file; a.click(); setTimeout(() => URL.revokeObjectURL(h), 1000); };
     if (kind === "svg") return done(href);
     const img = new Image(); img.onload = () => { const c = document.createElement("canvas"); c.width = img.width; c.height = img.height; c.getContext("2d")!.drawImage(img, 0, 0); c.toBlob(b => b && done(URL.createObjectURL(b))); URL.revokeObjectURL(href); }; img.src = href;

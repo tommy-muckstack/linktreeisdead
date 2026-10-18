@@ -15,7 +15,7 @@ export function SocialsDialog({ initial, onClose }: { initial: string; onClose: 
   const pickKind = (k: SocialKind) => { setKind(k); const c = page.socials.find(s => s.kind === k); setUrl(c ? c.url.replace(/^mailto:|^tel:/, "") : ""); setErr(""); };
   const save = () => {
     if (!kind) return; const u = normalizeSocial(kind, url); if (!u) { setErr(kind === "email" ? "Enter a valid email address." : kind === "phone" ? "Enter a valid phone number." : "Enter a valid link, like https://…"); return; }
-    if (!cur) track(EVENTS.link_social_added, { platform: kind });
+    if (!cur) track(EVENTS.app_social_added, { platform: kind });
     edit(p => ({ ...p, socials: p.socials.some(s => s.kind === kind) ? p.socials.map(s => s.kind === kind ? { ...s, url: u } : s) : [...p.socials, { kind, url: u, enabled: true }] })); onClose();
   };
   if (!kind) return <Modal title="Add social icon" onClose={onClose}>

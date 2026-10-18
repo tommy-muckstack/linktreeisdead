@@ -41,7 +41,7 @@ export async function externalizeDataUrl(owner: string, v: string): Promise<stri
 export async function collectGarbage(owner: string, referenced: Set<string>, graceMs = 6 * 60 * 60 * 1000): Promise<number> {
   return locked("imgidx" + owner, async () => {
     const idx = await getDoc<Idx>("imgidx", owner); if (!idx) return 0;
-    const now = Date.now(); const drop = idx.files.filter(f => !referenced.has(f.id) && now - f.at > graceMs);
+    const now = Date.now(); const drop = idx.files.filter(f => !referenced.has(f.id) && now - f.at >= graceMs);
     for (const f of drop) await delDoc("img", f.id);
     if (drop.length) await putDoc("imgidx", owner, { files: idx.files.filter(f => !drop.includes(f)) });
     return drop.length;

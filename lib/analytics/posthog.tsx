@@ -3,14 +3,15 @@
 // drop them; the key is the project's publishable token. Without NEXT_PUBLIC_POSTHOG_KEY everything is a no-op.
 import React, { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { APP, APP_FAMILY, EVENTS, type EventName, type Surface } from "./taxonomy";
+import { superProps, type EventName, type Surface } from "./taxonomy";
 import { BP } from "@/lib/basepath";
 type PH = typeof import("posthog-js").default;
 let ph: PH | null = null; let loading: Promise<PH | null> | null = null;
 const KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 const UI_HOST = process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.posthog.com";
 export const analyticsEnabled = !!KEY;
-const surfaceOf = (path: string): Surface => (path.startsWith(`${BP}/app`) ? "app" : "site");
+// "app" = the editor plus what it publishes (public pages, short links); everything else is the marketing site.
+const surfaceOf = (path: string): Surface => (/^\/(app|u|go|s)(\/|$)/.test(path.slice(BP.length)) ? "app" : "landing");
 
 async function client(): Promise<PH | null> {
   if (!KEY || typeof window === "undefined") return null;
@@ -23,10 +24,9 @@ async function client(): Promise<PH | null> {
       capture_pageview: false, capture_pageleave: true, autocapture: false, disable_session_recording: true,
       persistence: "localStorage+cookie", person_profiles: "always", debug, opt_out_useragent_filter: debug,
     });
-    p.register({ app: APP, app_family: APP_FAMILY, base_path: BP, env: process.env.NODE_ENV === "production" ? "production" : "development",
-      // Shared-project taxonomy (yourappisdead/ANALYTICS.md): product/surface/platform are persisted super properties, so set them
-      // here or the hub's values (product=yourappisdead) leak onto this app's events via the shared cookie.
-      product: APP, surface: surfaceOf(location.pathname) === "app" ? "app" : "landing", platform: "web" });
+    // product/surface/platform are persisted super properties, so set them here or the hub's values (product=yourappisdead)
+    // leak onto this app's events via the shared cookie.
+    p.register({ ...superProps(surfaceOf(location.pathname)), env: process.env.NODE_ENV === "production" ? "production" : "development" });
     ph = p; if (process.env.NODE_ENV !== "production") (window as unknown as { __posthog?: PH }).__posthog = p;
     return p;
   }).catch(err => { if (process.env.NODE_ENV !== "production") console.warn("[analytics] PostHog failed to start", err); return null; });
@@ -36,13 +36,18 @@ async function client(): Promise<PH | null> {
 export function track(event: EventName, props: Record<string, string | number | boolean | null | undefined> = {}) {
   void client().then(p => p?.capture(event, { surface: surfaceOf(location.pathname), ...props }));
 }
+/** Like track, but sent immediately; await it before navigating away (sign-in redirects). Never throws or hangs past 1.5s. */
+export async function trackNow(event: EventName, props: Record<string, string | number | boolean | null | undefined> = {}) {
+  await Promise.race([client().then(p => { p?.capture(event, { surface: surfaceOf(location.pathname), ...props }, { send_instantly: true }); }).catch(() => {}), new Promise(r => setTimeout(r, 1500))]);
+}
 export function identify(uid: string, props: { account_type: "firebase" | "demo" | "guest"; app?: string }) {
   void client().then(p => { if (!p) return; if (props.account_type === "firebase") p.identify(uid, { account_type: props.account_type }); else p.register({ account_type: props.account_type }); });
 }
-export function resetIdentity() { void client().then(p => p?.reset()); }
+// reset() wipes super properties too, so put this app's back straight away.
+export function resetIdentity() { void client().then(p => { p?.reset(); p?.register(superProps(surfaceOf(location.pathname))); }); }
 /** Mount once in the root layout: boots the client and sends a page view per route change. */
 export function Analytics() {
   const path = usePathname();
-  useEffect(() => { if (!path) return; const full = `${BP}${path}`.replace(/\/{2,}/g, "/"); if (full.startsWith(`${BP}/u/`)) return; const s = surfaceOf(full); track(s === "app" ? EVENTS.app_page_viewed : EVENTS.site_page_viewed, { path: full.replace(/\/app\/links\/edit\/[a-z0-9]+/, "/app/links/edit/:id"), $current_url: location.href }); }, [path]);
+  useEffect(() => { if (!path) return; void client().then(p => { if (!p) return; p.register({ surface: surfaceOf(location.pathname) }); p.capture("$pageview", { $current_url: location.href.replace(/\/app\/links\/edit\/[a-z0-9]+/, "/app/links/edit/:id") }); }); }, [path]);
   return null;
 }

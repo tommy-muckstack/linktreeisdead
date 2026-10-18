@@ -37,6 +37,6 @@ export function EnhancePanel() {
     <PanelHead title="Enhance" />
     <div className="ad-note ad-note--info"><I n="enhance" s={20} /><div><b>Time for a fresh look?</b><br />A check-up of your page based on what works on popular link-in-bio pages. You choose which tips to apply.</div></div>
     {todo.length === 0 && <div className="ad-tip"><span className="ad-tip__ic"><I n="check" s={20} /></span><div><h3>Your page looks great</h3><p>Nothing to fix right now. Check back after you add more links.</p></div></div>}
-    {list.sort((a, b) => Number(a.done) - Number(b.done)).map(t => <div key={t.id} className={"ad-tip" + (t.done ? " done" : "")}><span className="ad-tip__ic"><I n={t.done ? "check" : t.icon} s={20} /></span><div style={{ flex: 1 }}><h3>{t.title}</h3><p>{t.why}</p>{!t.done && <Btn small onClick={() => { track(EVENTS.link_enhance_applied, { tip: t.id }); t.apply(); }}>{t.action}</Btn>}</div></div>)}
+    {list.sort((a, b) => Number(a.done) - Number(b.done)).map(t => <div key={t.id} className={"ad-tip" + (t.done ? " done" : "")}><span className="ad-tip__ic"><I n={t.done ? "check" : t.icon} s={20} /></span><div style={{ flex: 1 }}><h3>{t.title}</h3><p>{t.why}</p>{!t.done && <Btn small onClick={() => { track(EVENTS.app_enhance_applied, { tip: t.id }); t.apply(); }}>{t.action}</Btn>}</div></div>)}
   </>;
 }

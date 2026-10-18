@@ -55,10 +55,10 @@ export function PageView({ page, mode, frame = "page" }: { page: PublicPage; mod
   const cause = SUPPORT_CAUSES.find(c => c.id === page.settings.support);
   const [origin, setOrigin] = useState(""); useEffect(() => setOrigin(location.origin), []); const url = `${origin}${BP}/u/${page.handle}`;
   const go = (l: Block) => `${BP}/go/${page.handle}/${l.id}`;
-  useEffect(() => { if (live) track(EVENTS.profile_viewed, { blocks: page.links.length, has_video: page.links.some(l => l.type === "video") }); }, [live]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (live) track(EVENTS.app_profile_viewed, { blocks: page.links.length, has_video: page.links.some(l => l.type === "video") }); }, [live]); // eslint-disable-line react-hooks/exhaustive-deps
   const onLink = (e: React.MouseEvent, l: Block) => {
     if (!live) { e.preventDefault(); return; }
-    track(EVENTS.profile_link_clicked, { block_type: l.type, locked: l.lock.kind !== "none" });
+    track(EVENTS.app_profile_link_clicked, { block_type: l.type, locked: l.lock.kind !== "none" });
     if (l.lock.kind !== "none") { e.preventDefault(); setDialog({ kind: "lock", block: l }); }
   };
   const titleFont = fontStack(d.altTitleFont ? d.titleFont : d.font);
@@ -140,7 +140,7 @@ function ShareSheet({ url, title }: { url: string; title: string }) {
   const enc = encodeURIComponent(url), t = encodeURIComponent(title);
   const targets: [string, string, string][] = [["x", "X", `https://x.com/intent/post?url=${enc}&text=${t}`], ["facebook", "Facebook", `https://www.facebook.com/sharer/sharer.php?u=${enc}`], ["whatsapp", "WhatsApp", `https://wa.me/?text=${t}%20${enc}`], ["linkedin", "LinkedIn", `https://www.linkedin.com/sharing/share-offsite/?url=${enc}`], ["telegram", "Telegram", `https://t.me/share/url?url=${enc}&text=${t}`], ["email", "Email", `mailto:?subject=${t}&body=${enc}`]];
   return <div className="pv-share"><h2>Share this page</h2>
-    <div className="pv-share__row">{targets.map(([k, n, h]) => <a key={k} onClick={() => track(EVENTS.profile_shared, { method: k })} href={h} target="_blank" rel="noopener noreferrer"><span><SocialIcon kind={k} s={22} /></span>{n}</a>)}</div>
+    <div className="pv-share__row">{targets.map(([k, n, h]) => <a key={k} onClick={() => track(EVENTS.app_profile_shared, { method: k })} href={h} target="_blank" rel="noopener noreferrer"><span><SocialIcon kind={k} s={22} /></span>{n}</a>)}</div>
     <button className="pv-share__copy" onClick={async () => { try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch { /* ignore */ } }}><span>{url.replace(/^https?:\/\//, "")}</span><b>{copied ? "Copied" : "Copy"}</b></button>
     {typeof navigator !== "undefined" && "share" in navigator && <button className="pv-pill" onClick={() => navigator.share({ title, url }).catch(() => {})}>More options</button>}
   </div>;
@@ -156,7 +156,7 @@ function SubmitForm({ handle, live, kind, title, fields, button, blockId, option
   const [v, setV] = useState<Record<string, string>>({}); const [state, setState] = useState<"" | "sending" | "done" | "error">(""); const [err, setErr] = useState("");
   const label: Record<string, string> = { name: "Name", email: "Email", phone: "Phone number", message: "Message", company: "Company" };
   if (state === "done") return <div className="pv-form"><h2>Thanks!</h2><p>{kind === "subscribe" ? "You're subscribed." : "Your submission was sent."}</p></div>;
-  return <form className="pv-form" onSubmit={async e => { e.preventDefault(); if (!live) return; setState("sending"); const r = await fetch(`${BP}/api/submit`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ handle, kind, block: blockId, values: v }) }).catch(() => null); if (r?.ok) { setState("done"); track(EVENTS.profile_form_submitted, { kind }); } else { setState("error"); setErr((await r?.json().catch(() => null))?.error ?? "Couldn't send. Try again."); } }}>
+  return <form className="pv-form" onSubmit={async e => { e.preventDefault(); if (!live) return; setState("sending"); const r = await fetch(`${BP}/api/submit`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ handle, kind, block: blockId, values: v }) }).catch(() => null); if (r?.ok) { setState("done"); track(EVENTS.app_profile_form_submitted, { kind }); } else { setState("error"); setErr((await r?.json().catch(() => null))?.error ?? "Couldn't send. Try again."); } }}>
     {title && <h2>{title}</h2>}
     {options?.length ? <div className="pv-poll">{options.map(o => <label key={o}><input type="radio" name="choice" value={o} checked={v.choice === o} onChange={() => setV({ ...v, choice: o })} required /> {o}</label>)}</div> : null}
     {fields.map(f => f === "message" ? <textarea key={f} aria-label={label[f]} placeholder={label[f]} value={v[f] ?? ""} onChange={e => setV({ ...v, [f]: e.target.value })} required maxLength={1000} /> : <input key={f} aria-label={label[f]} placeholder={label[f]} type={f === "email" ? "email" : f === "phone" ? "tel" : "text"} value={v[f] ?? ""} onChange={e => setV({ ...v, [f]: e.target.value })} required={f === "email" || f === "phone" || f === "name"} maxLength={200} />)}

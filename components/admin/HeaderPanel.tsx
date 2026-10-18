@@ -27,7 +27,7 @@ export function HeaderPanel() {
   return <>
     <PanelHead title="Header" />
     <h3 className="ad-sec">Layout</h3>
-    <Choice label="Header layout" options={HEADER_LAYOUTS} value={d.header} onChange={v => { track(EVENTS.link_header_layout_set, { layout: v }); setD({ header: v }); }} cols={5} render={v => <>{LAYOUT_ART[v]}{v[0]!.toUpperCase() + v.slice(1)}</>} />
+    <Choice label="Header layout" options={HEADER_LAYOUTS} value={d.header} onChange={v => { track(EVENTS.app_header_layout_set, { layout: v }); setD({ header: v }); }} cols={5} render={v => <>{LAYOUT_ART[v]}{v[0]!.toUpperCase() + v.slice(1)}</>} />
     <hr className="ad-hr" />
     <Row label="Profile image" sub={d.header === "hero" || d.header === "banner" ? "Shown large at the top. Landscape works best." : "Square works best"}>
       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>

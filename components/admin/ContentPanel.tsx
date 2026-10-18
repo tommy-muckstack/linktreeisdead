@@ -34,8 +34,8 @@ export function ContentPanel() {
     m!.parent = m!.type === "collection" ? "" : tgt?.parent ?? ""; a.splice(Math.max(0, a.findIndex(l => l.id === target)), 0, m!); return { ...p, links: a };
   });
   const nudge = (id: string, d: -1 | 1) => edit(p => { const sib = p.links.filter(l => !l.archived && l.parent === p.links.find(x => x.id === id)?.parent); const i = sib.findIndex(l => l.id === id), j = i + d; if (j < 0 || j >= sib.length) return p; const a = [...p.links]; const ai = a.findIndex(l => l.id === id), aj = a.findIndex(l => l.id === sib[j]!.id); [a[ai], a[aj]] = [a[aj]!, a[ai]!]; return { ...p, links: a }; });
-  const archive = (ids: string[], on = true) => { if (on) track(EVENTS.link_block_archived, { count: ids.length }); edit(p => ({ ...p, links: p.links.map(l => ids.includes(l.id) || ids.includes(l.parent) ? { ...l, archived: on, ...(on && l.type !== "collection" && ids.includes(l.parent) ? {} : {}) } : l) })); toast(on ? (ids.length > 1 ? `${ids.length} items archived` : "Archived. Find it in the archive.") : "Restored"); };
-  const remove = (ids: string[]) => { if (!confirm(ids.length > 1 ? `Delete ${ids.length} items for good?` : "Delete this for good? You can archive it instead to keep its stats.")) return; track(EVENTS.link_block_deleted, { count: ids.length }); edit(p => ({ ...p, links: p.links.filter(l => !ids.includes(l.id)).map(l => ids.includes(l.parent) ? { ...l, parent: "" } : l) })); toast("Deleted"); };
+  const archive = (ids: string[], on = true) => { if (on) track(EVENTS.app_block_archived, { count: ids.length }); edit(p => ({ ...p, links: p.links.map(l => ids.includes(l.id) || ids.includes(l.parent) ? { ...l, archived: on, ...(on && l.type !== "collection" && ids.includes(l.parent) ? {} : {}) } : l) })); toast(on ? (ids.length > 1 ? `${ids.length} items archived` : "Archived. Find it in the archive.") : "Restored"); };
+  const remove = (ids: string[]) => { if (!confirm(ids.length > 1 ? `Delete ${ids.length} items for good?` : "Delete this for good? You can archive it instead to keep its stats.")) return; track(EVENTS.app_block_deleted, { count: ids.length }); edit(p => ({ ...p, links: p.links.filter(l => !ids.includes(l.id)).map(l => ids.includes(l.parent) ? { ...l, parent: "" } : l) })); toast("Deleted"); };
   const share = async (l: Block) => { try { await navigator.clipboard.writeText(l.url || publicUrl(page.handle)); toast("Link copied"); } catch { /* ignore */ } };
 
   const card = (l: Block, inColl = false): React.ReactNode => {
@@ -54,7 +54,7 @@ export function ContentPanel() {
       </button>
       <div className="ad-card__r">
         {!done && <button type="button" className="ad-card__warn" onClick={() => router.push(`/app/links/edit/${l.id}`)}><I n="wand" s={16} />Setup</button>}
-        <Switch on={l.enabled} label={l.enabled ? "Hide from page" : "Show on page"} onChange={v => { track(EVENTS.link_block_toggled, { visible: v }); setBlock(l.id, { enabled: v }); }} />
+        <Switch on={l.enabled} label={l.enabled ? "Hide from page" : "Show on page"} onChange={v => { track(EVENTS.app_block_toggled, { visible: v }); setBlock(l.id, { enabled: v }); }} />
         <Menu trigger={open => <IconBtn n="vmore" label="More options" onClick={open} />} items={[
           { icon: "pencil", label: "Edit", onClick: () => router.push(`/app/links/edit/${l.id}`) },
           { icon: "up", label: "Move up", onClick: () => nudge(l.id, -1) }, { icon: "down", label: "Move down", onClick: () => nudge(l.id, 1) },

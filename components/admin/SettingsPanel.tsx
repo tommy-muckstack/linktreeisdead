@@ -13,7 +13,7 @@ import { track, EVENTS } from "@/lib/analytics";
 const SECTIONS = [["username", "Username"], ["analytics", "Analytics"], ["support", "Support banner"], ["access", "Profile access"], ["subscribe", "Subscribe"], ["messages", "Messages"], ["seo", "SEO"], ["about", "About this account"]] as const;
 export function SettingsPanel() {
   const { page, edit, rename, toast } = useAdmin(); const s = page.settings;
-  const set = (patch: Partial<Settings>) => { for (const [k, v] of Object.entries(patch)) if (typeof v === "boolean") track(EVENTS.link_setting_changed, { setting: k, on: v }); else if (k === "lock" || k === "support") track(EVENTS.link_setting_changed, { setting: k, on: k === "lock" ? (v as Settings["lock"]).enabled : !!v }); edit(p => ({ ...p, settings: { ...p.settings, ...patch } })); };
+  const set = (patch: Partial<Settings>) => { for (const [k, v] of Object.entries(patch)) if (typeof v === "boolean") track(EVENTS.app_setting_changed, { setting: k, on: v }); else if (k === "lock" || k === "support") track(EVENTS.app_setting_changed, { setting: k, on: k === "lock" ? (v as Settings["lock"]).enabled : !!v }); edit(p => ({ ...p, settings: { ...p.settings, ...patch } })); };
   const [h, setH] = useState(page.handle); const [hNote, setHNote] = useState(""); const [busy, setBusy] = useState(false);
   const check = async (v: string) => { setH(v); if (v === page.handle) return setHNote(""); const bad = validateHandle(v); if (bad) return setHNote(bad); const r = await (await fetch(`${BP}/api/handle?h=${encodeURIComponent(v)}`)).json(); setHNote(r.available ? "Available" : r.reason); };
   return <>

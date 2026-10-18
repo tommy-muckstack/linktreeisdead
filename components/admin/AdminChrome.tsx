@@ -43,7 +43,7 @@ function AccountChip({ compact }: { compact?: boolean }) {
       { icon: "user", label: "My account", onClick: () => router.push("/app/account") },
       user.guest ? { icon: "user", label: "Sign in to save your page", onClick: () => location.assign(`${BP}/login?callbackUrl=${encodeURIComponent(BP + "/app/links")}`) } : null,
       user.guest ? { icon: "plus", label: "Create a free account", onClick: () => location.assign(`${BP}/login?mode=signup&callbackUrl=${encodeURIComponent(BP + "/app/links")}`) } : null,
-      !user.guest ? { icon: "left", label: "Sign out", onClick: async () => { track(EVENTS.auth_signed_out); resetIdentity(); await fetch(`${BP}/api/session/logout`, { method: "POST" }); location.assign(`${BP}/`); } } : null,
+      !user.guest ? { icon: "left", label: "Sign out", onClick: async () => { track(EVENTS.app_signed_out); resetIdentity(); await fetch(`${BP}/api/session/logout`, { method: "POST" }); location.assign(`${BP}/`); } } : null,
     ]} />;
 }
 
@@ -53,7 +53,7 @@ function SharePop() {
   useEffect(() => { if (!open) return; const k = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false); addEventListener("keydown", k); return () => removeEventListener("keydown", k); }, [open]);
   const opts: { k: string; label: string; icon: React.ReactNode; href?: string; onClick?: () => void }[] = [
     { k: "page", label: "My page", icon: <Mark size={22} />, href: `${BP}/u/${page.handle}` }, { k: "card", label: "Business card", icon: <I n="card" s={20} />, href: `${BP}/app/business-cards` },
-    { k: "qr", label: "QR code", icon: <I n="qr" s={20} />, onClick: () => { track(EVENTS.link_page_shared, { method: "qr" }); setQr(true); setOpen(false); } },
+    { k: "qr", label: "QR code", icon: <I n="qr" s={20} />, onClick: () => { track(EVENTS.app_page_shared, { method: "qr" }); setQr(true); setOpen(false); } },
     { k: "x", label: "X", icon: <SocialIcon kind="x" s={20} />, href: `https://x.com/intent/post?url=${enc}` }, { k: "facebook", label: "Facebook", icon: <SocialIcon kind="facebook" s={20} />, href: `https://www.facebook.com/sharer/sharer.php?u=${enc}` },
     { k: "linkedin", label: "LinkedIn", icon: <SocialIcon kind="linkedin" s={20} />, href: `https://www.linkedin.com/sharing/share-offsite/?url=${enc}` }, { k: "whatsapp", label: "WhatsApp", icon: <SocialIcon kind="whatsapp" s={20} />, href: `https://wa.me/?text=${enc}` },
     { k: "email", label: "Email", icon: <SocialIcon kind="email" s={20} />, href: `mailto:?body=${enc}` },
@@ -62,8 +62,8 @@ function SharePop() {
     <button type="button" className="ad-pillbtn" onClick={() => setOpen(o => !o)} aria-expanded={open}><I n="share" s={18} />Share</button>
     {open && <><div className="ad-scrim" onClick={() => setOpen(false)} /><div className="ad-share" role="dialog" aria-label="Share your page">
       <div className="ad-share__hd"><b>Share your LinktreeIsDead</b><Link href="/app/design" className="ad-ib" aria-label="Design" onClick={() => setOpen(false)}><I n="design" s={16} /></Link><button className="ad-ib" aria-label="Close" onClick={() => setOpen(false)}><I n="x" s={16} /></button></div>
-      <div className="ad-share__url"><Mark size={18} /><span>{url.replace(/^https?:\/\//, "")}</span><button className="ad-btn ad-btn--primary ad-btn--sm" onClick={async () => { try { await navigator.clipboard.writeText(url); track(EVENTS.link_page_shared, { method: "copy" }); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch { /* ignore */ } }}>{copied ? "Copied" : "Copy"}</button></div>
-      <div className="ad-share__row">{opts.map(o => o.href ? <a key={o.k} onClick={() => track(EVENTS.link_page_shared, { method: o.k })} href={o.href} target={o.href.startsWith("http") || o.k === "page" ? "_blank" : undefined} rel="noreferrer"><span>{o.icon}</span>{o.label}</a> : <button key={o.k} type="button" onClick={o.onClick}><span>{o.icon}</span>{o.label}</button>)}</div>
+      <div className="ad-share__url"><Mark size={18} /><span>{url.replace(/^https?:\/\//, "")}</span><button className="ad-btn ad-btn--primary ad-btn--sm" onClick={async () => { try { await navigator.clipboard.writeText(url); track(EVENTS.app_page_shared, { method: "copy" }); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch { /* ignore */ } }}>{copied ? "Copied" : "Copy"}</button></div>
+      <div className="ad-share__row">{opts.map(o => o.href ? <a key={o.k} onClick={() => track(EVENTS.app_page_shared, { method: o.k })} href={o.href} target={o.href.startsWith("http") || o.k === "page" ? "_blank" : undefined} rel="noreferrer"><span>{o.icon}</span>{o.label}</a> : <button key={o.k} type="button" onClick={o.onClick}><span>{o.icon}</span>{o.label}</button>)}</div>
     </div></>}
     {qr && <QrModal url={url} name={page.handle} onClose={() => setQr(false)} />}
   </div>;

@@ -99,7 +99,7 @@ function Details({ l, set, setData }: { l: Block; set: (p: Partial<Block>) => vo
 
 function PowerUps({ l, set: rawSet, linkish }: { l: Block; set: (p: Partial<Block>) => void; linkish: boolean }) {
   const { page, edit } = useAdmin();
-  const set = (patch: Partial<Block>) => { const k = Object.keys(patch)[0]; const name = k === "anim" ? "animation" : k; if (k && k !== "lock" || patch.lock?.kind !== l.lock.kind) track(EVENTS.link_powerup_set, { powerup: name, value: k === "schedule" ? Boolean(patch.schedule?.start || patch.schedule?.end) : k === "lock" ? patch.lock!.kind : String(Object.values(patch)[0]) }); rawSet(patch); }; const [code, setCode] = useState(l.lock.code);
+  const set = (patch: Partial<Block>) => { const k = Object.keys(patch)[0]; const name = k === "anim" ? "animation" : k; if (k && k !== "lock" || patch.lock?.kind !== l.lock.kind) track(EVENTS.app_powerup_set, { powerup: name, value: k === "schedule" ? Boolean(patch.schedule?.start || patch.schedule?.end) : k === "lock" ? patch.lock!.kind : String(Object.values(patch)[0]) }); rawSet(patch); }; const [code, setCode] = useState(l.lock.code);
   return <>
     <h3 className="ad-sec"><I n="clock" s={16} /> Schedule</h3><p className="ad-sub">Show this only between these times (your local time).</p>
     <div className="ad-mini" style={{ marginBottom: 8 }}><label className="ad-row__l" style={{ flex: 1 }}><small>Starts</small><input className="ad-input" type="datetime-local" value={local(l.schedule.start)} onChange={e => set({ schedule: { ...l.schedule, start: fromLocal(e.target.value) } })} /></label><label className="ad-row__l" style={{ flex: 1 }}><small>Ends</small><input className="ad-input" type="datetime-local" value={local(l.schedule.end)} onChange={e => set({ schedule: { ...l.schedule, end: fromLocal(e.target.value) } })} /></label></div>
@@ -114,7 +114,7 @@ function PowerUps({ l, set: rawSet, linkish }: { l: Block; set: (p: Partial<Bloc
       {l.lock.kind === "code" && <Field label="Code (letters or numbers)" value={code} max={32} onChange={v => { setCode(v); set({ lock: { ...l.lock, code: v } }); }} />}
       {l.lock.kind === "age" && <Row label="Minimum age"><select className="ad-input" style={{ width: 120 }} value={l.lock.age} onChange={e => set({ lock: { ...l.lock, age: Number(e.target.value) } })}>{[13, 16, 18, 21, 25].map(a => <option key={a} value={a}>{a}+</option>)}</select></Row>}
       <hr className="ad-hr" />
-      <Row label="Redirect" sub="Send everyone who opens your page straight to this link"><Switch on={l.redirect} label="Redirect" onChange={v => { track(EVENTS.link_powerup_set, { powerup: "redirect", value: String(v) }); edit(p => ({ ...p, links: p.links.map(x => x.id === l.id ? { ...x, redirect: v } : { ...x, redirect: v ? false : x.redirect }) })); }} /></Row>
+      <Row label="Redirect" sub="Send everyone who opens your page straight to this link"><Switch on={l.redirect} label="Redirect" onChange={v => { track(EVENTS.app_powerup_set, { powerup: "redirect", value: String(v) }); edit(p => ({ ...p, links: p.links.map(x => x.id === l.id ? { ...x, redirect: v } : { ...x, redirect: v ? false : x.redirect }) })); }} /></Row>
       {l.redirect && <div className="ad-note"><I n="external" s={18} />While this is on, visiting {page.handle}'s page opens this link instead. Turn it off to show your page again.</div>}
     </>}
   </>;
