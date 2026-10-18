@@ -68,7 +68,12 @@ export async function ensurePage(user: Who, wanted?: string): Promise<Page> {
       if (!(await createDoc(COL, h, p))) continue; // taken (possibly a moment ago by another request): try the next one
       if (await createDoc("owners", user.id, { handle: h })) return p;
       // Another instance made this owner's page at the same time: keep theirs, drop ours.
-      await delDoc(COL, h); const theirs = await getPageByOwner(user.id); if (theirs) return theirs; throw new PageUnavailable();
+      let theirs: Page | null;
+      try { theirs = await getPageByOwner(user.id); } catch (e) { await delDoc(COL, h); throw e; }
+      if (theirs) { if (theirs.handle !== h) await delDoc(COL, h); return theirs; } // (same handle: the dangling index already names the page we just made)
+      // The index exists but names a page that's gone or isn't this owner's (an interrupted delete, manual cleanup):
+      // repair it to point at the page we just made instead of locking the owner out.
+      await putDoc("owners", user.id, { handle: h }); return p;
     }
     throw new Error("Couldn't find a free handle.");
   });

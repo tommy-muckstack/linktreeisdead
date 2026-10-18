@@ -109,6 +109,17 @@ describe("handle collisions (7) and torn reads (8)", () => {
     await expect(P.ensurePage(user("torn1", "torn1@x.io"))).rejects.toBeInstanceOf(P.PageUnavailable);
     expect((await S.getDoc<{ handle: string }>("owners", "torn1"))!.handle).toBe(mine.handle);
   });
+  it("a dangling owner index (page gone) heals instead of locking the owner out", async () => {
+    const mine = await P.ensurePage(user("dang1", "dang1@x.io")); await S.delDoc("pages", mine.handle);
+    const fresh = await P.ensurePage(user("dang1", "dang1@x.io"));
+    expect(fresh.ownerId).toBe("dang1"); expect((await S.getDoc<{ handle: string }>("owners", "dang1"))!.handle).toBe(fresh.handle);
+    expect((await P.getPageByOwner("dang1"))!.handle).toBe(fresh.handle);
+  });
+  it("an index pointing at someone else's page gets its own page, never theirs", async () => {
+    const other = (await P.getPageByOwner("race1"))!; await S.putDoc("owners", "intruder2", { handle: other.handle });
+    const own = await P.ensurePage(user("intruder2", "intruder2@x.io"));
+    expect(own.handle).not.toBe(other.handle); expect((await P.getPage(other.handle))!.ownerId).toBe("race1");
+  });
 });
 
 describe("growth caps (9)", () => {
