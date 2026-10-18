@@ -12,7 +12,7 @@ import { useAdmin, useOrigin } from "@/components/admin/AdminProvider";
 import { QrModal } from "@/components/admin/QrModal";
 import { Menu } from "@/components/admin/ui";
 import { setupSteps } from "@/components/admin/setup";
-import { track, EVENTS, resetIdentity } from "@/lib/analytics";
+import { track, trackNow, EVENTS, resetIdentity } from "@/lib/analytics";
 import "@/app/admin.css";
 
 const EDITOR = ["/app/links", "/app/header", "/app/design", "/app/enhance", "/app/settings"];
@@ -29,7 +29,7 @@ export function AdminChrome({ children }: { children: React.ReactNode }) {
   const editor = EDITOR.some(e => path === e || path.startsWith(e + "/"));
   const { page, user } = useAdmin(); const router = useRouter();
   const onboard = !user.guest && !user.demo && !page.onboarded;
-  useEffect(() => { if (onboard && path !== "/app/welcome") router.replace("/app/welcome"); }, [onboard, path, router]);
+  useEffect(() => { if (onboard && path !== "/app/welcome") { const h = new URLSearchParams(location.search).get("handle"); router.replace("/app/welcome" + (h ? `?handle=${encodeURIComponent(h)}` : "")); } }, [onboard, path, router]);
   if (path === "/app/welcome") return <div className="ad">{children}</div>;
   return editor ? <EditorChrome path={path}>{children}</EditorChrome> : <DashChrome path={path}>{children}</DashChrome>;
 }
@@ -43,7 +43,7 @@ function AccountChip({ compact }: { compact?: boolean }) {
       { icon: "user", label: "My account", onClick: () => router.push("/app/account") },
       user.guest ? { icon: "user", label: "Sign in to save your page", onClick: () => location.assign(`${BP}/login?callbackUrl=${encodeURIComponent(BP + "/app/links")}`) } : null,
       user.guest ? { icon: "plus", label: "Create a free account", onClick: () => location.assign(`${BP}/login?mode=signup&callbackUrl=${encodeURIComponent(BP + "/app/links")}`) } : null,
-      !user.guest ? { icon: "left", label: "Sign out", onClick: async () => { track(EVENTS.app_signed_out); resetIdentity(); await fetch(`${BP}/api/session/logout`, { method: "POST" }); location.assign(`${BP}/`); } } : null,
+      !user.guest ? { icon: "left", label: "Sign out", onClick: async () => { await trackNow(EVENTS.app_signed_out); resetIdentity(); await fetch(`${BP}/api/session/logout`, { method: "POST" }); location.assign(BP || "/"); } } : null,
     ]} />;
 }
 
@@ -104,7 +104,7 @@ function SideNav({ path, onClose }: { path: string; onClose?: () => void }) {
     <div className="ad-side__top"><AccountChip compact />{onClose && <button className="ad-ib" aria-label="Close menu" onClick={onClose}><I n="x" s={16} /></button>}</div>
     <nav className="ad-nav">{item({ href: "/app/links", n: "content", label: "Edit my page" })}{DASH_NAV.map(item)}<div className="ad-nav__sec">Tools</div>{TOOLS_NAV.map(item)}</nav>
     {pct < 100 && <div className="ad-setup"><div className="ad-ring" style={{ "--p": pct } as React.CSSProperties}><span>{pct}%</span></div><b>Your setup checklist</b><small>{done} of {steps.length} complete</small><Link href="/app#setup" className="ad-btn ad-btn--purple ad-btn--full">Finish setup</Link></div>}
-    <div className="ad-side__foot"><a className="ad-ib" href="https://github.com/tommy-muckstack/linktreeisdead/issues" target="_blank" rel="noreferrer" aria-label="Help" title="Help and feedback"><I n="help" s={18} /></a><a className="ad-side__brand" href={`${BP}/`}><Mark size={20} />LinktreeIsDead</a></div>
+    <div className="ad-side__foot"><a className="ad-ib" href="https://github.com/tommy-muckstack/linktreeisdead/issues" target="_blank" rel="noreferrer" aria-label="Help" title="Help and feedback"><I n="help" s={18} /></a><a className="ad-side__brand" href={BP || "/"}><Mark size={20} />LinktreeIsDead</a></div>
   </div>;
 }
 

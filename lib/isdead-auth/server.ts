@@ -2,7 +2,7 @@ import crypto from "node:crypto";
 import { firebaseConfigured, SESSION_MAX_AGE_S } from "./config";
 export * from "./config";
 
-export type FirebaseIdentity = { uid: string; email: string | null; emailVerified: boolean; name: string | null; picture: string | null; provider: string | null };
+export type FirebaseIdentity = { uid: string; email: string | null; emailVerified: boolean; name: string | null; picture: string | null; provider: string | null; authTime: number };
 
 let adminAuth: Promise<import("firebase-admin/auth").Auth> | null = null;
 /** Lazily initialised firebase-admin Auth. Throws if FIREBASE_SERVICE_ACCOUNT_JSON is missing. */
@@ -19,7 +19,7 @@ export function getAdminAuth() {
   return adminAuth;
 }
 
-const toIdentity = (t: any): FirebaseIdentity => ({ uid: t.uid, email: t.email ?? null, emailVerified: !!t.email_verified, name: t.name ?? null, picture: t.picture ?? null, provider: t.firebase?.sign_in_provider ?? null });
+const toIdentity = (t: any): FirebaseIdentity => ({ uid: t.uid, email: t.email ?? null, emailVerified: !!t.email_verified, name: t.name ?? null, picture: t.picture ?? null, provider: t.firebase?.sign_in_provider ?? null, authTime: Number(t.auth_time) || 0 });
 
 /** Exchange a fresh client ID token for a session cookie value. Rejects tokens older than 5 minutes. */
 export async function createSessionFromIdToken(idToken: string) {
@@ -34,6 +34,11 @@ export async function createSessionFromIdToken(idToken: string) {
 export async function verifySessionCookie(cookie: string | undefined, checkRevoked = false): Promise<FirebaseIdentity | null> {
   if (!cookie || !firebaseConfigured()) return null;
   try { return toIdentity(await (await getAdminAuth()).verifySessionCookie(cookie, checkRevoked)); } catch { return null; }
+}
+
+/** For sensitive changes (email, password): the session cookie's sign-in happened within `maxAgeS` seconds. Checks revocation. */
+export async function recentlySignedIn(cookie: string | undefined, maxAgeS = 5 * 60): Promise<FirebaseIdentity | null> {
+  const id = await verifySessionCookie(cookie, true); return id && Date.now() / 1000 - id.authTime <= maxAgeS ? id : null;
 }
 
 export async function revokeSessions(uid: string) { try { await (await getAdminAuth()).revokeRefreshTokens(uid); } catch { /* best effort */ } }
