@@ -11,9 +11,9 @@ const Cross = () => <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden>
 const Chev = ({ open }: { open?: boolean }) => <svg width="14" height="8" viewBox="0 0 14 8" aria-hidden style={{ transform: open ? "rotate(180deg)" : undefined, transition: "transform .2s" }}><path d="M1 1l6 6 6-6" fill="none" stroke="currentColor" strokeWidth="1.4" /></svg>;
 
 const plans = [
-  { name: "Starter", price: "$6", alt: "$8", cta: "Get started", lead: "Everything in Free, plus:", feats: ["Personalized LinktreeIsDead", "Unlimited featured links", "Basic analytics"] },
-  { name: "Pro", price: "$12", alt: "$15", cta: "Get started free", hot: true, lead: "Everything in Starter, plus:", feats: ["Remove LinktreeIsDead branding", "Custom designs", "Link scheduling and locks", "Subscriber export"] },
-  { name: "Premium", price: "$30", alt: "$35", cta: "Get started free", lead: "Everything in Pro, plus:", feats: ["Link rules and routing", "Design tips", "All-time analytics", "Data export", "Social media scheduling", "Short links and QR codes"] },
+  { name: "Starter", price: "$6", cta: "Get started", lead: "Everything in Free, plus:", feats: ["Personalized LinktreeIsDead", "Unlimited featured links", "Basic analytics"] },
+  { name: "Pro", price: "$12", cta: "Get started free", hot: true, lead: "Everything in Starter, plus:", feats: ["Remove LinktreeIsDead branding", "Custom designs", "Link scheduling and locks", "Subscriber export"] },
+  { name: "Premium", price: "$30", cta: "Get started free", lead: "Everything in Pro, plus:", feats: ["Link rules and routing", "Design tips", "All-time analytics", "Data export", "Social media scheduling", "Short links and QR codes"] },
 ];
 // The original rotates customer quotes here. These are the project's own promises, attributed to the project.
 const quotes: [string, string][] = [
@@ -24,11 +24,10 @@ const quotes: [string, string][] = [
 const tiles: [string, string, string, string][] = [
   ["/yourband", "#fff", "#1e2330", "24px"], ["/yourstudio", "#c98b7e", "#fff", "24px"], ["/yourpodcast", "#0b0b24", "#9ec1ff", "999px"], ["/yourshop", "#050505", "#fff", "24px"], ["/yournewsletter", "#e8e0c2", "#1e2330", "24px"], ["/yourartist", "#2a2f6b", "#fff", "999px 999px 24px 24px"], ["/yourcoach", "#d2e823", "#1e2330", "24px"],
 ];
-const earn: [string, string, string][] = [["Digital products", "Instant checkout, no extra tools", "Requires separate storefront"], ["Online courses", "Kajabi-powered, no extra account needed", "Monthly fees, complex setup"], ["Sponsored links", "Built-in traffic monetization", "No native monetization"], ["Affiliate commissions", "Industry-leading commissions", "Lower commission payouts"], ["Setup time", "Minutes", "Hours or days"]];
 const growth: [string, string, string][] = [["Stay consistent on social", "Plan your social posts on a calendar so you never miss a posting day again.", "sched"], ["Grow your email list", "Collect emails on your LinktreeIsDead so you can stay connected on and off social platforms.", "email"], ["Use insights to optimize", "Get deep insights into your audience and optimize your LinktreeIsDead for more clicks and engagement.", "insights"]];
 const more: [string, string, string][] = [["Enhanced Customization", "From video backgrounds to removing the LinktreeIsDead footer: get even more power to make your page pop.", "pink"], ["Extended Analytics", "See what’s performing and download extensive analytics to shape your LinktreeIsDead for success.", "lime"], ["Email & SMS Integrations", "Build an audience you reach anywhere, any time by collecting email and SMS details on your LinktreeIsDead.", "maroon"]];
-const tabs = ["Links & Buttons", "Monetization", "Customization", "Insights", "Marketing Tech", "Management"];
-const cols = [{ n: "Free", p: "$0", u: "forever", cta: "Join for free" }, { n: "Starter", p: "$6", u: "USD/mo", cta: "Get Starter" }, { n: "Pro", p: "$12", u: "USD/mo", cta: "Try Pro for free", hot: true }, { n: "Premium", p: "$30", u: "USD/mo", cta: "Get Premium" }];
+const tabs = ["Links & Buttons", "Customization", "Insights", "Marketing Tech", "Management"];
+const cols = [{ n: "Free", p: "$0", u: "forever", cta: "Join for free" }, { n: "Starter", p: "$6", u: "USD/mo", cta: "Get Starter" }, { n: "Pro", p: "$12", u: "USD/mo", cta: "Get Pro", hot: true }, { n: "Premium", p: "$30", u: "USD/mo", cta: "Get Premium" }];
 
 function Art({ k }: { k: string }) {
   if (k === "sched") return <div className="ltp-art ltp-art--sched"><i className="a" /><i className="b" /><span><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden><circle cx="12" cy="12" r="9" fill="none" stroke="#1e2330" strokeWidth="2" /><path d="M12 7v5l3 2" fill="none" stroke="#1e2330" strokeWidth="2" /></svg>Scheduled</span></div>;
@@ -47,11 +46,11 @@ export function LtPricing() {
   const groups = data.groups as [string, [string, (string | number)[], string][]][];
   return <div className="ltp">
     <section className="ltp-hero">
-      <h1>Pick your plan. Make it yours.</h1><p className="ltp-sub">Simple pricing with powerful features, cancel anytime.</p><p className="ltp-note">These are the prices paid link-in-bio plans charge. On LinktreeIsDead every plan is free.</p>
+      <h1>Pick your plan. Make it yours.</h1><p className="ltp-sub">Simple pricing with powerful features.</p><p className="ltp-note">These are the prices paid link-in-bio plans charge. On LinktreeIsDead every plan is free.</p>
       <div className="ltp-plans"><article className="ltp-plan ltp-plan--free"><header><h3>Free</h3></header><div className="ltp-plan__b"><div className="ltp-price"><b>$0</b><span>forever</span></div><p className="ltp-bill">Everything you need to start</p><SmartLink className="ltp-pbtn" href="/app">Get started</SmartLink><hr /><h5>Includes:</h5><ul><li><i><Check s={10} /></i>Unlimited basic links</li><li><i><Check s={10} /></i>Email and phone sign-ups</li></ul></div></article>{plans.map(p => <article key={p.name} className={"ltp-plan" + (p.hot ? " is-hot" : "")}>
         {p.hot && <span className="ltp-rec"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7L12 17.3 5.8 20.9l1.6-7L2 9.2l7.1-.6z" fill="currentColor" /></svg>Recommended</span>}
         <header><h3>{p.name}</h3></header>
-        <div className="ltp-plan__b"><div className="ltp-price"><b>{p.price}</b><span>/mo</span></div><p className="ltp-bill">Billed annually, or {p.alt} monthly</p>
+        <div className="ltp-plan__b"><div className="ltp-price"><b>{p.price}</b><span>/mo</span></div><p className="ltp-bill">Free on LinktreeIsDead</p>
           <SmartLink className="ltp-pbtn" href="/app">{p.cta}</SmartLink><hr /><h5>{p.lead}</h5>
           <ul>{p.feats.map(f => <li key={f}><i><Check s={10} /></i>{f}</li>)}</ul></div></article>)}</div>
       <div className="ltp-quote"><blockquote><p>“{quotes[q][0]}”</p><cite>{quotes[q][1]}</cite><small>LinktreeIsDead</small></blockquote>
@@ -73,7 +72,7 @@ export function LtPricing() {
 
     <section className="ltp-feat" id="ltp-features"><h2>All Features</h2>
       <div className="ltp-tbl">
-        <div className="ltp-tbl__h"><span />{cols.map(c => <div key={c.n} className={c.hot ? "hot" : ""}>{c.hot && <em>7-day free trial</em>}<h4>{c.n}</h4><p><b>{c.p}</b> <small>{c.u}</small></p><SmartLink href="/app" className={c.hot ? "o" : ""}>{c.cta}</SmartLink></div>)}</div>
+        <div className="ltp-tbl__h"><span />{cols.map(c => <div key={c.n} className={c.hot ? "hot" : ""}><h4>{c.n}</h4><p><b>{c.p}</b> <small>{c.u}</small></p><SmartLink href="/app" className={c.hot ? "o" : ""}>{c.cta}</SmartLink></div>)}</div>
         <div className="ltp-tbl__b">
           <nav className="ltp-tabs"><div>{tabs.map((t, i) => <a key={t} href={`#ltp-g${i}`} className={tab === i ? "on" : ""} onClick={() => setTab(i)}>{t}</a>)}</div></nav>
           <div className="ltp-tbl__c">{groups.map(([g, rows], gi) => <div key={g} id={`ltp-g${gi}`} className="ltp-grp">{rows.map(([label, cells, desc]) => { const k = g + label; const o = !!open[k]; return <div key={k} className="ltp-row">

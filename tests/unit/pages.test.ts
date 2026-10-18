@@ -8,6 +8,12 @@ describe("page store", () => {
     const a = await P.ensurePage(user("u1", "ada@x.io")); const again = await P.ensurePage(user("u1", "ada@x.io")); const b = await P.ensurePage(user("u2", "ada@y.io"));
     expect(again.handle).toBe(a.handle); expect(b.handle).not.toBe(a.handle);
   });
+  it("uses the claimed handle for a new page only when it is valid and free", async () => {
+    expect((await P.ensurePage(user("c1", "zed@x.io"), "claimed.one")).handle).toBe("claimed.one");
+    expect((await P.ensurePage(user("c2", "amy@x.io"), "claimed.one")).handle).toBe("amy");
+    expect((await P.ensurePage(user("c3", "bo@x.io"), "LOGIN")).handle).toBe("bopage");
+    expect((await P.ensurePage(user("c1", "zed@x.io"), "other")).handle).toBe("claimed.one");
+  });
   it("saves, renames and frees the old handle", async () => {
     const a = (await P.getPageByOwner("u1"))!; const r = await P.savePage("u1", { title: "Ada!", links: [{ type: "link", title: "Hi", url: "hi.io" }], handle: "ada.new" });
     expect(r.error).toBeUndefined(); expect(r.page!.handle).toBe("ada.new"); expect(await P.getPage(a.handle)).toBeNull(); expect(await P.handleAvailable(a.handle)).toBe(true);

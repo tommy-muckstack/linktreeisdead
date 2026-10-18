@@ -22,7 +22,9 @@ type Who = { id: string; name: string; email: string; demo: boolean; guest?: boo
 export async function ensurePage(user: Who, wanted?: string): Promise<Page> {
   const have = await getPageByOwner(user.id); if (have) return have;
   if (user.demo) { const d = demoPage(); await putPage(d); await putDoc("owners", "demo", { handle: d.handle }); return d; }
-  const seed = wanted && !validateHandle(wanted) ? wanted : user.guest ? "guest" + newId().slice(0, 5) : (user.email.split("@")[0] || user.name);
+  // The handle typed on the claim form is used only when it is valid and still free; otherwise fall back to the default seed.
+  const want = (wanted ?? "").trim().toLowerCase(); const useWanted = !!want && !validateHandle(want) && !(await getPage(want));
+  const seed = useWanted ? want : user.guest ? "guest" + newId().slice(0, 5) : (user.email.split("@")[0] || user.name);
   const base = slugifyHandle(seed); let h = base, i = 1;
   while ((await getPage(h)) || validateHandle(h)) h = (base + ++i).slice(0, 30);
   const p = newPage(user.id, h, user.guest ? "" : user.name || h); await putPage(p); await putDoc("owners", user.id, { handle: h }); return p;
