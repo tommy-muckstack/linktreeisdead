@@ -10,6 +10,7 @@ let ph: PH | null = null; let loading: Promise<PH | null> | null = null;
 const KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 const UI_HOST = process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.posthog.com";
 export const analyticsEnabled = !!KEY;
+const ENV = process.env.NODE_ENV === "production" ? "production" : "development";
 // "app" = the editor plus what it publishes (public pages, short links); everything else is the marketing site.
 const surfaceOf = (path: string): Surface => (/^\/(app|u|go|s)(\/|$)/.test(path.slice(BP.length)) ? "app" : "landing");
 
@@ -39,7 +40,7 @@ async function client(): Promise<PH | null> {
     // leak onto this app's events via the shared cookie.
     // Every IsDead app shares the yourappisdead.com cookie, so drop super properties other apps' older taxonomy left behind.
     for (const k of LEGACY_PROPS) p.unregister(k);
-    p.register({ ...superProps(surfaceOf(location.pathname)), env: process.env.NODE_ENV === "production" ? "production" : "development" });
+    p.register({ ...superProps(surfaceOf(location.pathname)), env: ENV });
     ph = p; if (process.env.NODE_ENV !== "production") (window as unknown as { __posthog?: PH }).__posthog = p;
     return p;
   }).catch(err => { if (process.env.NODE_ENV !== "production") console.warn("[analytics] PostHog failed to start", err); return null; });
@@ -57,7 +58,7 @@ export function identify(uid: string, props: { account_type: "firebase" | "demo"
   void client().then(p => { if (!p) return; if (props.account_type === "firebase") p.identify(uid, { account_type: props.account_type }); else p.register({ account_type: props.account_type }); });
 }
 // reset() wipes super properties too, so put this app's back straight away.
-export function resetIdentity() { void client().then(p => { p?.reset(); p?.register(superProps(surfaceOf(location.pathname))); }); }
+export function resetIdentity() { void client().then(p => { p?.reset(); p?.register({ ...superProps(surfaceOf(location.pathname)), env: ENV }); }); }
 /** Mount once in the root layout: boots the client and sends a page view per route change. */
 export function Analytics() {
   const path = usePathname();
