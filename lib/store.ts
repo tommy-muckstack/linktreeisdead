@@ -24,13 +24,22 @@ function db() {
 }
 const colName = (col: string) => `${appName()}__${safe(col)}`;
 
-async function fsGet<T>(col: string, id: string): Promise<T | null> {
+type Read<T> = { state: "missing" } | { state: "torn" } | { state: "ok"; value: T };
+async function fsRead<T>(col: string, id: string): Promise<Read<T>> {
   const c = (await db()).collection(colName(col)); const snap = await c.doc(safe(id)).get();
-  if (!snap.exists) return null;
+  if (!snap.exists) return { state: "missing" };
   const m = snap.data() as { d?: string; n?: number };
   let json = m.d ?? "";
   for (let i = 1; i < (m.n ?? 1); i++) json += ((await c.doc(`${safe(id)}~c${i}`).get()).data() as { d?: string } | undefined)?.d ?? "";
-  try { return JSON.parse(json) as T; } catch { return null; }
+  try { return { state: "ok", value: JSON.parse(json) as T }; } catch { return { state: "torn" }; }
+}
+const fsGet = async <T>(col: string, id: string): Promise<T | null> => { const r = await fsRead<T>(col, id); return r.state === "ok" ? r.value : null; };
+/** Create only if absent (Firestore create() fails when the doc exists). Returns false when it already existed. */
+async function fsCreate<T>(col: string, id: string, doc: T): Promise<boolean> {
+  const c = (await db()).collection(colName(col)); const json = JSON.stringify(doc); const n = Math.max(1, Math.ceil(json.length / CHUNK));
+  try { await c.doc(safe(id)).create({ d: json.slice(0, CHUNK), n, main: true, updatedAt: Date.now() }); } catch (e: any) { if (e?.code === 6 || /already exists/i.test(String(e?.message))) return false; throw e; }
+  for (let i = 1; i < n; i++) await c.doc(`${safe(id)}~c${i}`).set({ d: json.slice(i * CHUNK, (i + 1) * CHUNK), part: true });
+  return true;
 }
 async function fsPut<T>(col: string, id: string, doc: T) {
   const c = (await db()).collection(colName(col)); const json = JSON.stringify(doc); const n = Math.max(1, Math.ceil(json.length / CHUNK));
@@ -52,8 +61,14 @@ async function fsDel(col: string, id: string) {
 
 // ---- local files (dev) ----
 const dir = () => process.env["ISDEAD_DATA_DIR"] ?? path.join(process.env["VERCEL"] ? "/tmp" : process.cwd(), ".data");
-async function fileGet<T>(col: string, id: string): Promise<T | null> {
-  try { return JSON.parse(await fs.readFile(path.join(dir(), safe(col), safe(id) + ".json"), "utf8")) as T; } catch { return null; }
+async function fileRead<T>(col: string, id: string): Promise<Read<T>> {
+  let raw: string; try { raw = await fs.readFile(path.join(dir(), safe(col), safe(id) + ".json"), "utf8"); } catch { return { state: "missing" }; }
+  try { return { state: "ok", value: JSON.parse(raw) as T }; } catch { return { state: "torn" }; }
+}
+const fileGet = async <T>(col: string, id: string): Promise<T | null> => { const r = await fileRead<T>(col, id); return r.state === "ok" ? r.value : null; };
+async function fileCreate<T>(col: string, id: string, doc: T): Promise<boolean> {
+  const d = path.join(dir(), safe(col)); await fs.mkdir(d, { recursive: true });
+  try { await fs.writeFile(path.join(d, safe(id) + ".json"), JSON.stringify(doc), { flag: "wx" }); return true; } catch (e: any) { if (e?.code === "EEXIST") return false; throw e; }
 }
 async function filePut<T>(col: string, id: string, doc: T) {
   const d = path.join(dir(), safe(col)); await fs.mkdir(d, { recursive: true });
@@ -71,6 +86,10 @@ export const getDoc = <T>(col: string, id: string): Promise<T | null> => (useFir
 export const putDoc = <T>(col: string, id: string, doc: T): Promise<void> => (useFirestore() ? fsPut(col, id, doc) : filePut(col, id, doc));
 export const listDocs = <T>(col: string): Promise<T[]> => (useFirestore() ? fsList<T>(col) : fileList<T>(col));
 export const delDoc = (col: string, id: string): Promise<void> => (useFirestore() ? fsDel(col, id) : fileDel(col, id));
+/** Write only if no doc has this id yet (atomic in both backends). Returns false when the id was taken. */
+export const createDoc = <T>(col: string, id: string, doc: T): Promise<boolean> => (useFirestore() ? fsCreate(col, id, doc) : fileCreate(col, id, doc));
+/** Like getDoc, but tells a missing doc apart from one that exists and can't be read whole (a torn chunked read). */
+export const readDoc = <T>(col: string, id: string): Promise<Read<T>> => (useFirestore() ? fsRead<T>(col, id) : fileRead<T>(col, id));
 
 /** After a guest signs in: move every per-user doc (docs keyed by the user id) from the guest id to the account, once. */
 export async function adoptGuestDocs(fromId: string, toId: string): Promise<number> {
@@ -82,7 +101,12 @@ export async function adoptGuestDocs(fromId: string, toId: string): Promise<numb
       if (!col.id.startsWith(prefix)) continue;
       const src = await col.doc(safe(fromId)).get(); if (!src.exists) continue;
       const dstRef = col.doc(safe(toId)); if ((await dstRef.get()).exists) continue;
-      await dstRef.set(src.data()!); await src.ref.delete(); moved++;
+      // Chunked docs (over ~900 KB) keep the rest of their JSON in <id>~c1, ~c2 …: copy those before the main doc.
+      const n = (src.data() as { n?: number }).n ?? 1;
+      for (let i = 1; i < n; i++) { const part = await col.doc(`${safe(fromId)}~c${i}`).get(); if (part.exists) await col.doc(`${safe(toId)}~c${i}`).set(part.data()!); }
+      await dstRef.set(src.data()!);
+      for (let i = 1; i < n; i++) await col.doc(`${safe(fromId)}~c${i}`).delete();
+      await src.ref.delete(); moved++;
     }
   } else {
     const root = dir();

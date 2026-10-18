@@ -24,7 +24,8 @@ describe("page store", () => {
     const p = (await P.getPageByOwner("u1"))!; const id = p.links[0]!.id; const v = { ref: "instagram", country: "US", device: "mobile", visitor: "abc" };
     const urls = await Promise.all(Array.from({ length: 25 }, () => P.recordClick(p.handle, id, undefined, v))); expect(urls.every(u => u === "https://hi.io/")).toBe(true);
     await Promise.all(Array.from({ length: 10 }, () => P.recordView(p.handle, v)));
-    const q = (await P.getPage(p.handle))!; expect(q.links[0]!.clicks).toBe(25); expect(q.views).toBe(10);
+    const stored = (await P.getPage(p.handle))!; expect(stored.links[0]!.clicks).toBe(0); expect(stored.views).toBe(0); // counters never touch the page doc
+    const q = await P.withCounts(stored); expect(q.links[0]!.clicks).toBe(25); expect(q.views).toBe(10);
     const ins = await P.getInsights(q.pid); const day = Object.values(ins.days)[0]!; expect(day.v).toBe(10); expect(day.c).toBe(25); expect(day.ref.instagram).toBe(10); expect(day.uv).toBe(1);
     expect(await P.recordClick(p.handle, "nope")).toBeNull();
     await P.savePage("u1", { links: [{ ...q.links[0], enabled: false }] }); expect(await P.recordClick(p.handle, id)).toBeNull();
