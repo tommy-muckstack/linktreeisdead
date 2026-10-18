@@ -1,8 +1,7 @@
 @font-face{font-family:"IsDead Archivo";src:url("./fonts/Archivo-Variable.woff2") format("woff2");font-weight:100 900;font-stretch:62% 125%;font-style:normal;font-display:swap}
 .lg{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;background:#fff;color:#000;font-family:"IsDead Archivo",system-ui,sans-serif;font-stretch:100%}
 .lg-left{position:relative;padding:0 40px;min-height:100vh}
-.lg-logo{position:absolute;left:40px;top:38px;display:flex;align-items:flex-start;gap:0;text-decoration:none;color:#000;font-size:34px;font-weight:600;letter-spacing:-.045em;line-height:34px;font-stretch:100%}
-.lg-logo svg{margin:-2px 0 0 -2px}
+.lg-logo{position:absolute;left:40px;top:38px;display:flex;align-items:center;gap:10px;text-decoration:none;color:#000;font-size:34px;font-weight:600;letter-spacing:-.045em;line-height:34px;font-stretch:100%}
 .lg-form{width:480px;margin:0 auto;padding-top:150px;display:flex;flex-direction:column;align-items:stretch;text-align:center}
 .lg-form h1{margin:0;font-size:34px;line-height:42px;font-weight:850;font-stretch:108%;letter-spacing:-.03em;color:#000}
 .lg-sub{margin:10px 0 48px;font-size:16px;line-height:22px;color:#5f6368}
