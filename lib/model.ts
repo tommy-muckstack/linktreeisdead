@@ -212,6 +212,8 @@ export function migratePage(p: any): Page {
 export const today = (d = new Date()) => d.toISOString().slice(0, 10);
 export function bump(p: Page, what: "v" | "c", day = today()): void { const d = (p.daily[day] ??= { v: 0, c: 0 }); d[what]++; }
 
+/** Blocks whose `url` is the content (a locked one's URL is withheld from the public page). */
+export const URL_BLOCKS: readonly BlockType[] = ["link", "video", "music", "embed", "pdf", "rss"];
 /** Is this block live right now (enabled, not archived, inside its schedule window)? */
 export function isLive(l: Block, now = Date.now()): boolean {
   if (!l.enabled || l.archived) return false;

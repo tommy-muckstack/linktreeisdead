@@ -2,7 +2,7 @@
 // Renders a link-in-bio page: the editor's live preview (mode "preview": links are inert) and the public page (mode "live").
 import { useEffect, useMemo, useState } from "react";
 import { BP } from "@/lib/basepath";
-import { isLive, isComplete, SUPPORT_CAUSES, type Block, type Page } from "@/lib/model";
+import { isLive, isComplete, URL_BLOCKS, SUPPORT_CAUSES, type Block, type Page } from "@/lib/model";
 import { toEmbed, mapEmbed, mapLink, posterFor } from "@/lib/embeds";
 import { fontStack, googleFontsHref } from "@/lib/fonts";
 import { STICKER_EMOJI } from "@/lib/stickers";
@@ -48,7 +48,9 @@ export function PageView({ page, mode, frame = "page" }: { page: PublicPage; mod
   const [acked, setAcked] = useState(!page.settings.sensitive || !live);
   const btn = buttonCss(d);
   const fonts = googleFontsHref([d.font, d.altTitleFont ? d.titleFont : d.font]);
-  const visible = useMemo(() => page.links.filter(l => isLive(l, now) && isComplete(l)), [page.links, now]);
+  // A locked link arrives on the live page without its URL (the server keeps it); it still shows, as a button through /go.
+  const sealed = (l: Block) => live && l.lock.kind !== "none" && !l.url && URL_BLOCKS.includes(l.type);
+  const visible = useMemo(() => page.links.filter(l => isLive(l, now) && (isComplete(l) || sealed(l))), [page.links, now]); // eslint-disable-line react-hooks/exhaustive-deps
   const top = visible.filter(l => !l.parent).sort((a, b) => Number(b.prioritize) - Number(a.prioritize));
   const kids = (id: string) => visible.filter(l => l.parent === id);
   const socials = page.socials.filter(s => s.enabled);
@@ -72,18 +74,19 @@ export function PageView({ page, mode, frame = "page" }: { page: PublicPage; mod
     const cls = "pv-btn pv-anim-" + l.anim + (featured ? " pv-btn--featured" : "") + (l.thumb || l.icon ? " pv-btn--thumb" : "");
     return <a key={l.id} className={cls} style={btn} href={live ? go(l) : undefined} onClick={e => onLink(e, l)} rel="noopener noreferrer" data-link-id={l.id}>
       {featured ? <img className="pv-btn__feat" src={l.thumb} alt="" /> : l.thumb ? <img className="pv-btn__th" src={l.thumb} alt="" /> : l.icon ? <span className="pv-btn__ic"><SocialIcon kind={l.icon} s={22} /></span> : null}
-      <span className="pv-btn__t">{l.title || l.url}</span>
+      <span className="pv-btn__t">{l.title || l.url || "Locked link"}</span>
       {l.lock.kind !== "none" && <span className="pv-btn__lock"><I n="lock" s={16} /></span>}
     </a>;
   };
   const frameH = (src: string, h: number, ratio?: number, title?: string) => !live && posterFor(src) ? <div className="pv-embed pv-embed--poster" style={{ aspectRatio: String(ratio ?? 16 / 9), backgroundImage: `url("${posterFor(src)}")` }}><I n="play" s={36} /></div> : <div className="pv-embed" style={ratio ? { aspectRatio: String(ratio) } : { height: h }}><iframe src={live ? src : undefined} srcDoc={live ? undefined : `<div style="display:grid;place-items:center;height:100%;font:600 13px system-ui;color:#555;background:#eee">${title ?? "Embed"} preview</div>`} title={title ?? "Embedded content"} loading="lazy" allow="autoplay; encrypted-media; fullscreen; clipboard-write" referrerPolicy="strict-origin-when-cross-origin" /></div>;
 
   const block = (l: Block): React.ReactNode => {
+    if (sealed(l)) return linkBtn(l);
     switch (l.type) {
       case "header": return <h2 key={l.id} className="pv-h">{l.title}</h2>;
       case "text": return <p key={l.id} className="pv-text" style={{ textAlign: (l.data.align as "left" | "center") ?? "center" }}>{String(l.data.body ?? "")}</p>;
       case "collection": { const c = kids(l.id); if (!c.length) return null; const lay = (l.data.layout as string) ?? "stack";
-        return <section key={l.id} className={"pv-col pv-col--" + lay}>{l.title && <h3 className="pv-col__t">{l.title}</h3>}<div className="pv-col__in">{c.map(x => lay === "stack" ? block(x) : <a key={x.id} className="pv-tile" style={btn} href={live && x.url ? go(x) : undefined} onClick={e => onLink(e, x)}>{x.thumb ? <img src={x.thumb} alt="" /> : <span className="pv-tile__ic">{x.icon ? <SocialIcon kind={x.icon} s={28} /> : <I n="link" s={24} />}</span>}<span>{x.title}</span></a>)}</div></section>; }
+        return <section key={l.id} className={"pv-col pv-col--" + lay}>{l.title && <h3 className="pv-col__t">{l.title}</h3>}<div className="pv-col__in">{c.map(x => lay === "stack" ? block(x) : <a key={x.id} className="pv-tile" style={btn} href={live && (x.url || sealed(x)) ? go(x) : undefined} onClick={e => onLink(e, x)}>{x.thumb ? <img src={x.thumb} alt="" /> : <span className="pv-tile__ic">{x.icon ? <SocialIcon kind={x.icon} s={28} /> : <I n="link" s={24} />}</span>}<span>{x.title}</span></a>)}</div></section>; }
       case "video": case "music": case "embed": case "pdf": { const e = toEmbed(l.url); if (!e) return linkBtn(l); return <div key={l.id} className="pv-media">{l.title && <h3 className="pv-media__t">{l.title}</h3>}{frameH(e.src, Number(l.data.height) || e.h, e.ratio, e.provider)}</div>; }
       case "gallery": { const imgs = (l.data.images as { src: string; alt: string; url: string }[]) ?? []; return <div key={l.id} className={"pv-gal pv-gal--" + ((l.data.style as string) ?? "carousel")}>{l.title && <h3 className="pv-media__t">{l.title}</h3>}<div className="pv-gal__in">{imgs.map((im, i) => im.url && live ? <a key={i} href={im.url} target="_blank" rel="noopener noreferrer"><img src={im.src} alt={im.alt} /></a> : <img key={i} src={im.src} alt={im.alt} />)}</div></div>; }
       case "map": { const a = String(l.data.address ?? ""); return <div key={l.id} className="pv-media">{l.title && <h3 className="pv-media__t">{l.title}</h3>}{frameH(mapEmbed(a, Number(l.data.zoom) || 14), 240, undefined, "Map")}<a className="pv-btn pv-btn--sm" style={btn} href={live ? mapLink(a) : undefined} target="_blank" rel="noopener noreferrer" onClick={live ? undefined : e => e.preventDefault()}><I n="pin" s={16} /> {a}</a></div>; }
